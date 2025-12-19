@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: FoodFinder
+
+  profiles:
+    active: local
