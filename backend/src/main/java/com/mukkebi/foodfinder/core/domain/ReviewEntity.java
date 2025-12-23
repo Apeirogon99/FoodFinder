@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Table(
         name = "review",
         indexes = {
-            @Index(name="idx_review_user",columnList="userId")
+            @Index(name="idx_review_user",columnList="user_id")
         }
 )
 public class ReviewEntity extends BaseEntity {
