@@ -18,16 +18,16 @@ import lombok.NoArgsConstructor;
 )
 public class ReviewEntity extends BaseEntity {
 
-    @Column(nullable = true, length = 1000)
+    @Column(nullable = true, length = 1000, name = "content")
     private String content;
 
-    @Column(nullable=false)
-    private double rating;
+    @Column(nullable=false, name = "rating")
+    private Double rating;
 
-    @Column(nullable=false)
+    @Column(nullable=false, name = "user_id")
     private Long userId;
 
-    @Column(nullable=false)
+    @Column(nullable=false, name = "recommendation_id")
     private Long reconmmendationId;
 
 }
