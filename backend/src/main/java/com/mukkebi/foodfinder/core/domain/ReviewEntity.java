@@ -38,4 +38,9 @@ public class ReviewEntity extends BaseEntity {
     public static ReviewEntity create(String content, Double rating, Long userId, Long recommendationId) {
         return new ReviewEntity(content, rating, userId, recommendationId);
     }
+
+    public void update(String content, Double rating) {
+        this.content = content;
+        this.rating = rating;
+    }
 }
