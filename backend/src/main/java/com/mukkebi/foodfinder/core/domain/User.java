@@ -35,5 +35,9 @@ public class User extends BaseEntity {
         this.preferences = preferences;
         this.allergies = allergies;
     }
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
 
