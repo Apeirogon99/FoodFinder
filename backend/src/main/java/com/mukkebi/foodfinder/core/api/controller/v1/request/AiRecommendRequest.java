@@ -16,7 +16,7 @@ public record AiRecommendRequest(
 
         @NotNull(message = "반경은 필수입니다")
         @Min(value = 100, message = "반경은 최소 100m 이상이어야 합니다")
-        @Max(value = 200, message = "반경은 최대 200m 이하여야 합니다")
+        @Max(value = 500, message = "반경은 최대 500m 이하여야 합니다")
         Integer radius,
 
         @NotEmpty(message = "해시태그는 최소 1개 이상 선택해야 합니다")

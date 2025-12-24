@@ -2,6 +2,7 @@ package com.mukkebi.foodfinder.core.domain;
 
 import com.mukkebi.foodfinder.core.api.controller.v1.request.AiRecommendRequest;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.AiRecommendResponse;
+import com.mukkebi.foodfinder.core.api.controller.v1.response.RestaurantDetailResponse;
 import com.mukkebi.foodfinder.core.support.error.CoreException;
 import com.mukkebi.foodfinder.core.support.error.ErrorType;
 import com.mukkebi.foodfinder.storage.HashTag;
@@ -17,13 +18,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AiRecommendService {
+public class RecommendService {
 
     private final RestaurantService restaurantService;
     private final HashTagRepository hashTagRepository;
     private final OpenAiClient openAiClient;
 
-    public AiRecommendResponse recommend(AiRecommendRequest request) {
+    public RestaurantDetailResponse recommend(AiRecommendRequest request) {
         // 1. 해시태그 코드 → 설명(promptMessage) 조회
         List<HashTag> hashTags = hashTagRepository.findAllByCodeIn(request.hashTagCodes());
         if (hashTags.isEmpty()) {
@@ -102,8 +103,10 @@ public class AiRecommendService {
         // 출력 규칙
         sb.append("## 출력 규칙\n");
         sb.append("1. 위 후보 중에서 사용자 취향에 가장 적합한 음식점 1곳만 추천하세요.\n");
-        sb.append("2. 추천 이유를 1~2문장으로 설명하세요.\n");
-        sb.append("3. 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요.\n\n");
+        sb.append("2. 반드시 추천할 가게를 정한이후 출력 규칙을 따라라.\n");
+        sb.append("3. 카카오맵 api 호출결과의 placeUrl 의 링크로 들어가서 메뉴를 보고 메뉴를 추천하여라.\n\n");
+        sb.append("4. 추천 이유를 1~2문장으로 설명하세요.\n");
+        sb.append("5. 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요.\n\n");
         sb.append("```json\n");
         sb.append("{\n");
         sb.append("  \"restaurantId\": \"음식점 ID\",\n");
