@@ -1,12 +1,13 @@
 package com.mukkebi.foodfinder.core.api.controller.v1;
 
 import com.mukkebi.foodfinder.core.api.controller.v1.response.ExampleResponse;
+import com.mukkebi.foodfinder.core.api.controller.v1.response.ExampleStatsResponse;
 import com.mukkebi.foodfinder.core.domain.ExampleService;
 import com.mukkebi.foodfinder.core.support.response.ApiResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 public class ExampleController {
@@ -20,6 +21,11 @@ public class ExampleController {
     @GetMapping("/api/v1/examples")
     public ApiResult<ExampleResponse> getExamples() {
         return ApiResult.success(exampleService.getExamples());
+    }
+
+    @GetMapping("/api/v1/examples/stats")
+    public ApiResult<ExampleStatsResponse> getExampleStats(@RequestParam LocalDate from, @RequestParam LocalDate to) {
+        return ApiResult.success(exampleService.getExampleStats(from, to));
     }
 
     @PostMapping("api/v1/examples/{example}")
