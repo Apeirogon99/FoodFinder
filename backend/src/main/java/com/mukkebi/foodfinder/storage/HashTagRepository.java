@@ -11,7 +11,7 @@ public interface HashTagRepository extends JpaRepository<HashTag, Long> {
 
     Optional<HashTag> findByCode(String code);
 
-    /**
+    /*
      * 특정 식사 시간대를 포함하는 해시태그 목록 조회
      * ElementCollection JOIN으로 효율적인 쿼리 가능
      */
