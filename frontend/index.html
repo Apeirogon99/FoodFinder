@@ -2,12 +2,14 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/src/assets/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>오늘 뭐 먹지? - FoodFinder</title>
+    <title>FoodFinder</title>
   </head>
   <body>
     <div id="app"></div>
+    <!-- 카카오맵 SDK (autoload=false로 수동 초기화) -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6e3bd5504ffb326de167cfb149769145&autoload=false&libraries=services,clusterer"></script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

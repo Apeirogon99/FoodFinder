@@ -12,15 +12,21 @@ const routes = [
     component: () => import('@/views/LoginView.vue'),
   },
   {
+    path: '/search',
+    name: 'Search',
+    component: () => import('@/views/SearchView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/ProfileView.vue'),
     meta: { requiresAuth: true },
   },
   {
-    path: '/map',
-    name: 'Map',
-    component: () => import('@/views/MapView.vue'),
+    path: '/restaurant',
+    name: 'Restaurant',
+    component: () => import('@/views/RestaurantView.vue'),
     meta: { requiresAuth: true },
   },
   {
