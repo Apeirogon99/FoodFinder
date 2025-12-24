@@ -6,33 +6,26 @@ import com.mukkebi.foodfinder.core.support.error.CoreException;
 import com.mukkebi.foodfinder.core.support.error.ErrorType;
 import com.mukkebi.foodfinder.storage.ReviewRepository;
 import com.mukkebi.foodfinder.storage.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
 
-    public ReviewService(ReviewRepository reviewRepository,UserRepository userRepository) {
-        this.reviewRepository = reviewRepository;
-        this.userRepository = userRepository;
-    }
-
     //리뷰 가져오기(음식점 별)
     @Transactional(readOnly = true)
     public List<ReviewResponse> getByRestaurant(Long restaurantId) {
         return reviewRepository.findByRestaurantId(restaurantId).stream()
-                .map(r -> new ReviewResponse(
-                        r.getContent(),
-                        r.getRating(),
-                        r.getUserId(),
-                        r.getRestaurantId()
-                ))
+                .map(ReviewResponse::from
+                )
                 .toList();
     }
 
@@ -52,12 +45,8 @@ public class ReviewService {
                 .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR));
 
         return reviewRepository.findByUserId(user.getId()).stream()
-                .map(r -> new ReviewResponse(
-                        r.getContent(),
-                        r.getRating(),
-                        r.getUserId(),
-                        r.getRestaurantId()
-                ))
+                .map(ReviewResponse::from
+                )
                 .toList();
     }
 

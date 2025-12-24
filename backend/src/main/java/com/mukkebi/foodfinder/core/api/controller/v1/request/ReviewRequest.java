@@ -5,5 +5,4 @@ import lombok.Getter;
 public class ReviewRequest {
     String content;
     Double rating;
-    Long userId;
 }
