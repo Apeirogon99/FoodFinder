@@ -5,12 +5,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "recommends")
 public class Recommend extends BaseEntity {
 
@@ -41,6 +43,45 @@ public class Recommend extends BaseEntity {
     @Column(name = "distance", nullable = false)
     private Double distance;
 
-    @Column(name = "reason", nullable = false)
+    @Column(name = "reason", nullable = false, length = 1000)
     private String reason;
+
+    @Column(name = "menu", length = 255)
+    private String menu;
+
+    @Builder
+    private Recommend(Long userId, Long restaurantId, String restaurantName, String category,
+                      String address, String roadAddress, Double latitude, Double longitude,
+                      Double distance, String reason, String menu) {
+        this.userId = userId;
+        this.restaurantId = restaurantId;
+        this.restaurantName = restaurantName;
+        this.category = category;
+        this.address = address;
+        this.roadAddress = roadAddress;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.distance = distance;
+        this.reason = reason;
+        this.menu = menu;
+    }
+
+    public static Recommend create(Long userId, Long restaurantId, String restaurantName,
+                                   String category, String address, String roadAddress,
+                                   Double latitude, Double longitude, Double distance,
+                                   String reason, String menu) {
+        return Recommend.builder()
+                .userId(userId)
+                .restaurantId(restaurantId)
+                .restaurantName(restaurantName)
+                .category(category)
+                .address(address)
+                .roadAddress(roadAddress)
+                .latitude(latitude)
+                .longitude(longitude)
+                .distance(distance)
+                .reason(reason)
+                .menu(menu)
+                .build();
+    }
 }

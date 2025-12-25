@@ -1,5 +1,6 @@
 package com.mukkebi.foodfinder.storage;
 
+import com.mukkebi.foodfinder.core.enums.MealType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
