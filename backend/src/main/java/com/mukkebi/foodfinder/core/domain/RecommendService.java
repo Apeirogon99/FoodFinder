@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecommendService {
 
-    private final RestaurantService restaurantService;
+    private final RestaurantFinder restaurantFinder;
     private final HashTagRepository hashTagRepository;
     private final RecommendRepository recommendRepository;
     private final UserRepository userRepository;
@@ -47,9 +47,7 @@ public class RecommendService {
                 .toList();
 
         // 2. 카카오맵 API로 음식점 후보 목록 조회
-        List<Restaurant> candidates = restaurantService
-                .searchNearbyRestaurants(request.latitude(), request.longitude(), request.radius())
-                .restaurants();
+        List<Restaurant> candidates = restaurantFinder.findNearBy(request.latitude(), request.longitude(), request.radius());
 
         if (candidates.isEmpty()) {
             throw new CoreException(ErrorType.DEFAULT_ERROR, "주변에 추천할 음식점이 없습니다.");
