@@ -49,10 +49,13 @@ public class Recommend extends BaseEntity {
     @Column(name = "menu", length = 255)
     private String menu;
 
+    @Column(name = "result", nullable = false)
+    private String result;
+
     @Builder
     private Recommend(Long userId, Long restaurantId, String restaurantName, String category,
                       String address, String roadAddress, Double latitude, Double longitude,
-                      Double distance, String reason, String menu) {
+                      Double distance, String reason, String menu, String result) {
         this.userId = userId;
         this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
@@ -64,6 +67,7 @@ public class Recommend extends BaseEntity {
         this.distance = distance;
         this.reason = reason;
         this.menu = menu;
+        this.result = result;
     }
 
     public static Recommend create(Long userId, Long restaurantId, String restaurantName,
