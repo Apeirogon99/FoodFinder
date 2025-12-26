@@ -1,5 +1,6 @@
 package com.mukkebi.foodfinder.core.domain;
 
+import com.mukkebi.foodfinder.core.enums.EntityStatus;
 import com.mukkebi.foodfinder.storage.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -44,4 +45,5 @@ public class Review extends BaseEntity {
         this.content = content;
         this.rating = rating;
     }
+
 }

@@ -2,6 +2,7 @@ package com.mukkebi.foodfinder.core.domain;
 
 import com.mukkebi.foodfinder.core.api.controller.v1.request.ReviewRequest;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.ReviewResponse;
+import com.mukkebi.foodfinder.core.enums.EntityStatus;
 import com.mukkebi.foodfinder.core.support.error.CoreException;
 import com.mukkebi.foodfinder.core.support.error.ErrorType;
 import com.mukkebi.foodfinder.storage.ReviewRepository;
@@ -87,7 +88,6 @@ public class ReviewService {
         if (!review.getUserId().equals(user.getId())) {
             throw new CoreException(ErrorType.DEFAULT_ERROR);
         }
-
-        reviewRepository.delete(review);
+        review.deleted();
     }
 }

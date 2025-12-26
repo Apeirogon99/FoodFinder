@@ -1,13 +1,13 @@
 package com.mukkebi.foodfinder.core.domain;
 
-import com.mukkebi.foodfinder.core.api.controller.v1.response.ReviewListResponse;
+import com.mukkebi.foodfinder.core.api.controller.v1.response.ReviewListResponseByRestaurant;
+import com.mukkebi.foodfinder.core.api.controller.v1.response.ReviewListResponseByUser;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.ReviewResponse;
 import com.mukkebi.foodfinder.core.support.error.CoreException;
 import com.mukkebi.foodfinder.core.support.error.ErrorType;
 import com.mukkebi.foodfinder.storage.ReviewRepository;
 import com.mukkebi.foodfinder.storage.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,22 +16,22 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class ReaderService {
+public class ReviewReader {
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
 
     //음식점 리뷰 조회
     @Transactional(readOnly = true)
-    public ReviewListResponse getByRestaurant(Long restaurantId, Long cursorId) {
+    public ReviewListResponseByRestaurant getByRestaurant(Long restaurantId, Long cursorId) {
 
         int limit = 20;
 
         List<Review> reviews =
-                reviewRepository.findByRestaurantWithCursor(
+                reviewRepository.findRestaurantReviewsWithCursor(
                         restaurantId,
                         cursorId,
-                        PageRequest.of(0, limit + 1)
+                        limit + 1
                 );
 
         boolean hasNext = reviews.size() > limit;
@@ -51,7 +51,7 @@ public class ReaderService {
         Double averageRating =
                 reviewRepository.findAverageRatingByRestaurantId(restaurantId);
 
-        return new ReviewListResponse(
+        return new ReviewListResponseByRestaurant(
                 responses,
                 averageRating,
                 nextCursor,
@@ -59,24 +59,24 @@ public class ReaderService {
         );
     }
 
-
-   //내 리뷰 조회
+    //내 리뷰 조회
     @Transactional(readOnly = true)
-    public ReviewListResponse getMyReviews(
+    public ReviewListResponseByUser getMyReviews(
             OAuth2User oauth2User,
             Long cursorId
     ) {
-        String githubId = "180543622";
+        String githubId = "180543622"; // TODO 인증 연동
+
         User user = userRepository.findByGithubId(githubId)
                 .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR));
 
         int limit = 20;
 
         List<Review> reviews =
-                reviewRepository.findByUserWithCursor(
+                reviewRepository.findUserReviewsWithCursor(
                         user.getId(),
                         cursorId,
-                        PageRequest.of(0, limit + 1)
+                        limit + 1
                 );
 
         boolean hasNext = reviews.size() > limit;
@@ -96,29 +96,26 @@ public class ReaderService {
         Double averageRating =
                 reviewRepository.findAverageRatingByUserId(user.getId());
 
-        return new ReviewListResponse(
+        return new ReviewListResponseByUser(
                 responses,
-                averageRating,
                 nextCursor,
                 hasNext
         );
     }
 
-
-//  /*AI용*/
-//    //음식점별
+    //AI
 //    @Transactional(readOnly = true)
-//    public List<Review> getReviewsForAI(Long restaurantId) {
-//        return reviewRepository.findTop20ByRestaurantIdOrderByCreatedAtDesc(restaurantId);
+//    public List<Review> getRecentReviewsForAI(Long restaurantId) {
+//        return reviewRepository.findRestaurantReviewsWithCursor(
+//                restaurantId,
+//                null,
+//                20
+//        );
 //    }
-//
-//    //유저별
-//    @Transactional(readOnly = true)
-//    public List<Review> getReviewsForAI2(Long userId) {
-//        return reviewRepository.findTop20ByUserIdOrderByCreatedAtDesc(userId);
-//    }
-//
 
+    /* =========================
+       Entity → Response 변환
+       ========================= */
     private ReviewResponse toResponse(Review review) {
 
         User user = userRepository.findById(review.getUserId())
