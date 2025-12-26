@@ -3,6 +3,10 @@ package com.mukkebi.foodfinder.core.domain;
 import com.mukkebi.foodfinder.core.enums.EntityStatus;
 import com.mukkebi.foodfinder.storage.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,8 +25,11 @@ public class Review extends BaseEntity {
     @Column(length = 1000)
     private String content;
 
-    @Column(nullable=false)
+    @DecimalMin(value = "1.0")
+    @DecimalMax(value = "5.0")
+    @Column(nullable = false)
     private Double rating;
+
 
     @Column(nullable=false, name = "user_id")
     private Long userId;

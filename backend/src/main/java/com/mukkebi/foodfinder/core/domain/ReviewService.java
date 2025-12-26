@@ -34,7 +34,9 @@ public class ReviewService {
 
         User user = userRepository.findByGithubId(githubId)
                 .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR));
-
+        if(reviewRequest.getRating()<1||reviewRequest.getRating()>5) {
+            throw new CoreException(ErrorType.DEFAULT_ERROR);
+        }
         reviewRepository.save(
                 Review.create(
                         reviewRequest.getContent(),
@@ -63,6 +65,10 @@ public class ReviewService {
                 .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR));
 
         if (!review.getUserId().equals(user.getId())) {
+            throw new CoreException(ErrorType.DEFAULT_ERROR);
+        }
+
+        if(reviewRequest.getRating()<1||reviewRequest.getRating()>5) {
             throw new CoreException(ErrorType.DEFAULT_ERROR);
         }
 

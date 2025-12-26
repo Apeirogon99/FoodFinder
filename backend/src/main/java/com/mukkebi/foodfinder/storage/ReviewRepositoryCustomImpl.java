@@ -25,7 +25,7 @@ public class ReviewRepositoryCustomImpl
             select r
             from Review r
             where r.restaurantId = :restaurantId
-              and (:cursorId is null or r.id < :cursorId)
+              and (:cursorId is null or r.id < :cursorId) and r.status = 'ACTIVE'
             order by r.id desc
         """, Review.class)
                 .setParameter("restaurantId", restaurantId)
@@ -44,7 +44,7 @@ public class ReviewRepositoryCustomImpl
             select r
             from Review r
             where r.userId = :userId
-              and (:cursorId is null or r.id < :cursorId)
+              and (:cursorId is null or r.id < :cursorId) and r.status = 'ACTIVE'
             order by r.id desc
         """, Review.class)
                 .setParameter("userId", userId)
@@ -58,7 +58,7 @@ public class ReviewRepositoryCustomImpl
         return em.createQuery("""
             select avg(r.rating)
             from Review r
-            where r.restaurantId = :restaurantId
+            where r.restaurantId = :restaurantId and r.status = 'ACTIVE'
         """, Double.class)
                 .setParameter("restaurantId", restaurantId)
                 .getSingleResult();
@@ -69,7 +69,7 @@ public class ReviewRepositoryCustomImpl
         return em.createQuery("""
             select avg(r.rating)
             from Review r
-            where r.userId = :userId
+            where r.userId = :userId and r.status = 'ACTIVE'
         """, Double.class)
                 .setParameter("userId", userId)
                 .getSingleResult();

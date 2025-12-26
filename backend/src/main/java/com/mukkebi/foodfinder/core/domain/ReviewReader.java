@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -21,7 +24,7 @@ public class ReviewReader {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
 
-    //음식점 리뷰 조회
+    // 음식점 리뷰 조회
     @Transactional(readOnly = true)
     public ReviewListResponseByRestaurant getByRestaurant(Long restaurantId, Long cursorId) {
 
@@ -35,7 +38,6 @@ public class ReviewReader {
                 );
 
         boolean hasNext = reviews.size() > limit;
-
         if (hasNext) {
             reviews = reviews.subList(0, limit);
         }
@@ -44,8 +46,25 @@ public class ReviewReader {
                 ? null
                 : reviews.get(reviews.size() - 1).getId();
 
+        //  userId 수집
+        List<Long> userIds = reviews.stream()
+                .map(Review::getUserId)
+                .distinct()
+                .toList();
+
+        //  User 일괄 조회
+        Map<Long, User> userMap =
+                userRepository.findAllById(userIds).stream()
+                        .collect(Collectors.toMap(User::getId, Function.identity()));
+
+        // Review → ReviewResponse 변환
         List<ReviewResponse> responses = reviews.stream()
-                .map(this::toResponse)
+                .map(review ->
+                        ReviewResponse.of(
+                                review,
+                                userMap.get(review.getUserId())
+                        )
+                )
                 .toList();
 
         Double averageRating =
@@ -59,7 +78,7 @@ public class ReviewReader {
         );
     }
 
-    //내 리뷰 조회
+    // 내 리뷰 조회
     @Transactional(readOnly = true)
     public ReviewListResponseByUser getMyReviews(
             OAuth2User oauth2User,
@@ -80,7 +99,6 @@ public class ReviewReader {
                 );
 
         boolean hasNext = reviews.size() > limit;
-
         if (hasNext) {
             reviews = reviews.subList(0, limit);
         }
@@ -90,42 +108,13 @@ public class ReviewReader {
                 : reviews.get(reviews.size() - 1).getId();
 
         List<ReviewResponse> responses = reviews.stream()
-                .map(this::toResponse)
+                .map(review -> ReviewResponse.of(review, user))
                 .toList();
-
-        Double averageRating =
-                reviewRepository.findAverageRatingByUserId(user.getId());
 
         return new ReviewListResponseByUser(
                 responses,
                 nextCursor,
                 hasNext
-        );
-    }
-
-    //AI
-//    @Transactional(readOnly = true)
-//    public List<Review> getRecentReviewsForAI(Long restaurantId) {
-//        return reviewRepository.findRestaurantReviewsWithCursor(
-//                restaurantId,
-//                null,
-//                20
-//        );
-//    }
-
-    /* =========================
-       Entity → Response 변환
-       ========================= */
-    private ReviewResponse toResponse(Review review) {
-
-        User user = userRepository.findById(review.getUserId())
-                .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR));
-
-        return new ReviewResponse(
-                review.getContent(),
-                review.getRating(),
-                user.getNickname(),
-                review.getRestaurantId()
         );
     }
 }
