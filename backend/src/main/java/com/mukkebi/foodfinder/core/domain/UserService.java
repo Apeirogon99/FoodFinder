@@ -60,31 +60,36 @@ public class UserService {
         return UserProfileResponse.from(user);
     }
 
-    // 회원 정보 등록 로직
+    // 회원 정보 등록 및 수정 로직
     private void applyProfile(User user, UpdateProfileRequest request) {
 
-        user.changeNickname(request.nickname());
+        if (request.nickname() != null && !request.nickname().isBlank()) {
+            user.changeNickname(request.nickname());
+        }
 
-        user.getPreferences().clear();
-        user.getAllergies().clear();
+        if (request.preferences() != null) {
+            user.getPreferences().clear();
+            request.preferences().forEach(pr -> {
+                user.getPreferences().add(
+                        UserPreference.builder()
+                                .user(user)
+                                .preferenceType(pr.preferenceType())
+                                .liked(pr.liked())
+                                .build()
+                );
+            });
+        }
 
-        request.preferences().forEach(pr -> {
-            user.getPreferences().add(
-                    UserPreference.builder()
-                            .user(user)
-                            .preferenceType(pr.preferenceType())
-                            .liked(pr.liked())
-                            .build()
-            );
-        });
-
-        request.allergies().forEach(ar -> {
-            user.getAllergies().add(
-                    UserAllergy.builder()
-                            .user(user)
-                            .allergyType(ar.allergyType())
-                            .build()
-            );
-        });
+        if (request.allergies() != null) {
+            user.getAllergies().clear();
+            request.allergies().forEach(ar -> {
+                user.getAllergies().add(
+                        UserAllergy.builder()
+                                .user(user)
+                                .allergyType(ar.allergyType())
+                                .build()
+                );
+            });
+        }
     }
 }
