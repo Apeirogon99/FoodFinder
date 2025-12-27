@@ -2,6 +2,7 @@ package com.mukkebi.foodfinder.core.domain;
 
 import com.mukkebi.foodfinder.core.api.controller.v1.request.UpdateProfileRequest;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.UserProfileResponse;
+import com.mukkebi.foodfinder.core.enums.UserStatus;
 import com.mukkebi.foodfinder.storage.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,35 +15,17 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserProfileResponse updateMyProfile(String githubId, UpdateProfileRequest request) {
-        User user = userRepository.findByGithubId(githubId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + githubId));
+    // 회원 가입
+    public UserProfileResponse signUp(Long userId, UpdateProfileRequest request) {
 
-        // 기본 정보 수정
-        user.changeNickname(request.nickname());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다: " + userId));
 
-        // 기존 선호도/알레르기 초기화
-        user.getPreferences().clear();
-        user.getAllergies().clear();
+        if (user.getUserStatus() != UserStatus.PENDING) {
+            throw new IllegalStateException("이미 회원가입이 완료된 사용자입니다.");
+        }
 
-        // 선호도 추가
-        request.preferences().forEach(pr -> {
-            UserPreference pref = UserPreference.builder()
-                    .user(user)
-                    .preferenceType(pr.preferenceType())
-                    .liked(pr.liked())
-                    .build();
-            user.getPreferences().add(pref);
-        });
-
-        // 알레르기 추가
-        request.allergies().forEach(ar -> {
-            UserAllergy allergy = UserAllergy.builder()
-                    .user(user)
-                    .allergyType(ar.allergyType())
-                    .build();
-            user.getAllergies().add(allergy);
-        });
+        user.completeSignup();
 
         return UserProfileResponse.from(user);
     }

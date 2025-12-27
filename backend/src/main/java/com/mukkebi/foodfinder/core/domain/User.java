@@ -41,5 +41,9 @@ public class User extends BaseEntity {
         this.allergies = allergies;
         this.userStatus = userStatus;
     }
+
+    public void completeSignup() {
+        this.userStatus = UserStatus.ACTIVE;
+    }
 }
 
