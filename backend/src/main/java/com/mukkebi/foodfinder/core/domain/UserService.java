@@ -45,6 +45,21 @@ public class UserService {
         return UserProfileResponse.from(user);
     }
 
+    // 회원 정보 수정
+    public UserProfileResponse updateProfile(Long userId, UpdateProfileRequest request) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다: " + userId));
+
+        if (user.getUserStatus() != UserStatus.ACTIVE) {
+            throw new IllegalStateException("회원가입이 완료되지 않은 사용자입니다.");
+        }
+
+        applyProfile(user, request);
+
+        return UserProfileResponse.from(user);
+    }
+
     // 회원 정보 등록 로직
     private void applyProfile(User user, UpdateProfileRequest request) {
 

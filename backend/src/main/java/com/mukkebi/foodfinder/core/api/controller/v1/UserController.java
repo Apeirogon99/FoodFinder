@@ -33,4 +33,13 @@ public class UserController {
     ) {
         return ApiResult.success(userService.getProfile(principal.getUserId()));
     }
+
+    // 회원 정보 수정
+    @PatchMapping("/api/users/profile")
+    public ApiResult<UserProfileResponse> updateProfile(
+            @AuthenticationPrincipal OAuthUserPrincipal principal,
+            @RequestBody UpdateProfileRequest request
+    ) {
+        return ApiResult.success(userService.updateProfile(principal.getUserId(), request));
+    }
 }
