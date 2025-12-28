@@ -8,9 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,22 +20,14 @@ public class User extends BaseEntity {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserPreference> preferences = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserAllergy> allergies = new ArrayList<>();
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
     @Builder
-    public User(String githubId, String nickname, List<UserPreference> preferences, List<UserAllergy> allergies, UserStatus userStatus) {
+    public User(String githubId, String nickname, UserStatus userStatus) {
         this.githubId = githubId;
         this.nickname = nickname;
-        this.preferences = preferences;
-        this.allergies = allergies;
         this.userStatus = userStatus;
     }
 
