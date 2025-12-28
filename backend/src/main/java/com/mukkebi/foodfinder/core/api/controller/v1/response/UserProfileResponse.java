@@ -11,16 +11,16 @@ public record UserProfileResponse(
         List<AllergyItem> allergies
 ) {
 
-    public static UserProfileResponse from(User user) {
-
-        List<AllergyItem> alls = user.getAllergies().stream()
-                .map(AllergyItem::from)
-                .toList();
-
+    public static UserProfileResponse from(
+            User user,
+            List<UserAllergy> allergies
+    ) {
         return new UserProfileResponse(
                 user.getGithubId(),
                 user.getNickname(),
-                alls
+                allergies.stream()
+                        .map(AllergyItem::from)
+                        .toList()
         );
     }
 

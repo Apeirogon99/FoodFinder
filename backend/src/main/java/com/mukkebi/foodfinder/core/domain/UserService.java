@@ -3,6 +3,7 @@ package com.mukkebi.foodfinder.core.domain;
 import com.mukkebi.foodfinder.core.api.controller.v1.request.UpdateProfileRequest;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.UserProfileResponse;
 import com.mukkebi.foodfinder.core.enums.UserStatus;
+import com.mukkebi.foodfinder.storage.UserAllergyRepository;
 import com.mukkebi.foodfinder.storage.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserAllergyRepository userAllergyRepository;
 
     // 회원가입
     public UserProfileResponse signUp(Long userId, UpdateProfileRequest request) {
@@ -28,7 +30,7 @@ public class UserService {
         applyProfile(user, request);
         user.completeSignup();
 
-        return UserProfileResponse.from(user);
+        return UserProfileResponse.from(user, userAllergyRepository.findByUserId(userId));
     }
 
     // 회원 정보 조회
@@ -42,7 +44,7 @@ public class UserService {
             throw new IllegalStateException("회원가입이 완료되지 않은 사용자입니다.");
         }
 
-        return UserProfileResponse.from(user);
+        return UserProfileResponse.from(user, userAllergyRepository.findByUserId(userId));
     }
 
     // 회원 정보 수정
@@ -57,7 +59,7 @@ public class UserService {
 
         applyProfile(user, request);
 
-        return UserProfileResponse.from(user);
+        return UserProfileResponse.from(user, userAllergyRepository.findByUserId(userId));
     }
 
     // 회원 탈퇴
@@ -65,6 +67,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
 
+        userAllergyRepository.deleteByUserId(userId);
         userRepository.delete(user);
     }
 
@@ -76,9 +79,9 @@ public class UserService {
         }
 
         if (request.allergies() != null) {
-            user.getAllergies().clear();
+            userAllergyRepository.deleteByUserId(user.getId());
             request.allergies().forEach(ar -> {
-                user.getAllergies().add(
+                userAllergyRepository.save(
                         UserAllergy.builder()
                                 .user(user)
                                 .allergyType(ar.allergyType())
