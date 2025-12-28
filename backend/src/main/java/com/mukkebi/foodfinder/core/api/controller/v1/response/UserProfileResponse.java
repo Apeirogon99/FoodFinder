@@ -31,7 +31,7 @@ public record UserProfileResponse(
     }
 
     public record PreferenceItem(
-            String category,
+            String preferenceType,
             boolean liked
     ) {
         public static PreferenceItem from(UserPreference pref) {
