@@ -31,11 +31,10 @@ public record UserProfileResponse(
     }
 
     public record PreferenceItem(
-            String preferenceType,
-            boolean liked
+            String preferenceType
     ) {
         public static PreferenceItem from(UserPreference pref) {
-            return new PreferenceItem(pref.getPreferenceType().name(), pref.isLiked());
+            return new PreferenceItem(pref.getPreferenceType().name());
         }
     }
 

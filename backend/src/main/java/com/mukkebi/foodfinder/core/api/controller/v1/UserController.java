@@ -5,6 +5,7 @@ import com.mukkebi.foodfinder.core.api.controller.v1.response.UserProfileRespons
 import com.mukkebi.foodfinder.core.domain.UserService;
 import com.mukkebi.foodfinder.core.support.response.ApiResult;
 import com.mukkebi.foodfinder.core.support.security.OAuthUserPrincipal;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -41,5 +42,16 @@ public class UserController {
             @RequestBody UpdateProfileRequest request
     ) {
         return ApiResult.success(userService.updateProfile(principal.getUserId(), request));
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/api/users/me")
+    public ApiResult<?> withdraw(
+            @AuthenticationPrincipal OAuthUserPrincipal principal,
+            HttpServletRequest request
+    ) {
+        userService.withdraw(principal.getUserId());
+        request.getSession().invalidate();
+        return ApiResult.success();
     }
 }

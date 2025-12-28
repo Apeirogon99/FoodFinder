@@ -21,12 +21,9 @@ public class UserPreference extends BaseEntity {
     @Column(nullable = false)
     private PreferenceType preferenceType;
 
-    private boolean liked;
-
     @Builder
-    public UserPreference(User user, PreferenceType preferenceType, boolean liked) {
+    public UserPreference(User user, PreferenceType preferenceType) {
         this.user = user;
         this.preferenceType = preferenceType;
-        this.liked = liked;
     }
 }

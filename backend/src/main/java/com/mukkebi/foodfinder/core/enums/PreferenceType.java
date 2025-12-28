@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PreferenceType {
 
-    // ===== 음식 종류 기반 =====
+    // 음식 종류 기반
     KOREAN("종류", "한식"),
     WESTERN("종류", "양식"),
     CHINESE("종류", "중식"),
@@ -24,7 +24,7 @@ public enum PreferenceType {
     NOODLES("종류", "면요리"),
     RICE_BOWL("종류", "밥/비빔류"),
 
-    // ===== 취향/스타일 기반 =====
+    // 취향/스타일 기반
     SPICY("스타일", "매운 음식"),
     SWEET("스타일", "달달한 음식"),
     SALTY("스타일", "짠 음식"),
@@ -32,6 +32,6 @@ public enum PreferenceType {
     HEALTHY("스타일", "건강식"),
     LATE_NIGHT("스타일", "야식");
 
-    private final String group;      // "종류", "스타일"
+    private final String group;       // "종류", "스타일"
     private final String displayName; // 화면에 보여줄 이름 (한글)
 }

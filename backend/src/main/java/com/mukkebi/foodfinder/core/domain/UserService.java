@@ -60,6 +60,14 @@ public class UserService {
         return UserProfileResponse.from(user);
     }
 
+    // 회원 탈퇴
+    public void withdraw(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
+
+        userRepository.delete(user);
+    }
+
     // 회원 정보 등록 및 수정 로직
     private void applyProfile(User user, UpdateProfileRequest request) {
 
@@ -74,7 +82,6 @@ public class UserService {
                         UserPreference.builder()
                                 .user(user)
                                 .preferenceType(pr.preferenceType())
-                                .liked(pr.liked())
                                 .build()
                 );
             });
