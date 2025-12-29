@@ -17,7 +17,7 @@ public class AuthController {
     private final UserRepository userRepository;
 
     // 로그인 성공 여부 확인
-    @GetMapping("/api/auth/login-success")
+    @GetMapping("/api/v1/auth/login-success")
     public ApiResult<LoginSuccessResponse> loginSuccess(
             @AuthenticationPrincipal OAuthUserPrincipal principal
     ) {

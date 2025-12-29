@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     // 회원가입
-    @PostMapping("/api/users/signup")
+    @PostMapping("/api/v1/users/signup")
     public ApiResult<UserProfileResponse> signUp(
             @AuthenticationPrincipal OAuthUserPrincipal principal,
             @RequestBody UpdateProfileRequest request
@@ -28,7 +28,7 @@ public class UserController {
     }
 
     // 회원 정보 조회
-    @GetMapping("/api/users/profile")
+    @GetMapping("/api/v1/users/profile")
     public ApiResult<UserProfileResponse> getProfile(
             @AuthenticationPrincipal OAuthUserPrincipal principal
     ) {
@@ -36,7 +36,7 @@ public class UserController {
     }
 
     // 회원 정보 수정
-    @PatchMapping("/api/users/profile")
+    @PatchMapping("/api/v1/users/profile")
     public ApiResult<UserProfileResponse> updateProfile(
             @AuthenticationPrincipal OAuthUserPrincipal principal,
             @RequestBody UpdateProfileRequest request
@@ -45,7 +45,7 @@ public class UserController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/api/users/me")
+    @DeleteMapping("/api/v1/users/me")
     public ApiResult<?> withdraw(
             @AuthenticationPrincipal OAuthUserPrincipal principal,
             HttpServletRequest request
