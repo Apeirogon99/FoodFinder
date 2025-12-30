@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface RecommendRepository extends JpaRepository<Recommend, Long> {
+public interface RecommendRepository extends JpaRepository<Recommend, Long>, RecommendRepositoryCustom{
 
     List<Recommend> findByUserId(Long userId);
 
