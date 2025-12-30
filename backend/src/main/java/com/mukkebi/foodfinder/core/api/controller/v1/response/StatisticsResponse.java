@@ -16,4 +16,5 @@ public record StatisticsResponse(String label, Long value) {
     public StatisticsResponse(com.mukkebi.foodfinder.core.enums.RecommendationResult result, Long value) {
         this((result != null) ? result.name() : "미판정", value);
     }
+
 }

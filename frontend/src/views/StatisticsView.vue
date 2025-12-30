@@ -10,26 +10,22 @@
           </div>
           <div class="summary-stats">
             <div class="summary-item">
-              <span class="summary-value">{{ stats.monthlyReviews }}</span>
-              <span class="summary-label">리뷰</span>
-            </div>
-            <div class="summary-item">
               <span class="summary-value">{{ stats.monthlyVisits }}</span>
-              <span class="summary-label">방문</span>
+              <span class="summary-label">방문(승인)</span>
             </div>
             <div class="summary-item">
               <span class="summary-value">{{ stats.monthlyRecommends }}</span>
-              <span class="summary-label">추천</span>
+              <span class="summary-label">총 추천</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 차트 섹션: 카테고리별 방문 -->
+      <!-- 차트 섹션: 카테고리별 추천 -->
       <div class="chart-section">
-        <h3 class="section-title">카테고리별 방문</h3>
+        <h3 class="section-title">카테고리별 추천</h3>
         <div class="chart-card">
-          <div class="bar-chart">
+          <div v-if="categoryStats.length > 0" class="bar-chart">
             <div 
               v-for="(item, index) in categoryStats" 
               :key="index"
@@ -45,54 +41,60 @@
               <span class="bar-value">{{ item.count }}회</span>
             </div>
           </div>
+          <div v-else class="empty-state">
+            데이터가 없습니다.
+          </div>
         </div>
       </div>
 
-      <!-- 차트 섹션: 평점 분포 -->
+      <!-- 차트 섹션: 추천 반응 분포 -->
       <div class="chart-section">
-        <h3 class="section-title">평점 분포</h3>
+        <h3 class="section-title">추천 반응 분포</h3>
         <div class="chart-card">
-          <div class="rating-chart">
+          <div v-if="reactionStats.length > 0" class="rating-chart">
             <div 
-              v-for="rating in ratingDistribution" 
-              :key="rating.stars"
+              v-for="item in reactionStats" 
+              :key="item.label"
               class="rating-item"
             >
-              <span class="rating-stars">{{ rating.stars }}점</span>
+              <span class="rating-stars">{{ item.label }}</span>
               <div class="rating-track">
                 <div 
                   class="rating-fill" 
-                  :style="{ width: rating.percentage + '%' }"
+                  :style="{ width: item.percentage + '%', backgroundColor: item.color }"
                 ></div>
               </div>
-              <span class="rating-count">{{ rating.count }}</span>
+              <span class="rating-count">{{ item.count }}</span>
             </div>
           </div>
-          <div class="average-rating">
-            <span class="avg-label">평균 평점</span>
-            <span class="avg-value">{{ stats.averageRating }}</span>
-            <el-rate :model-value="parseFloat(stats.averageRating)" disabled allow-half />
+           <div v-else class="empty-state">
+            데이터가 없습니다.
           </div>
         </div>
       </div>
 
-      <!-- 최근 방문 음식점 -->
+      <!-- 최근 활동 -->
       <div class="recent-section">
-        <h3 class="section-title">최근 방문</h3>
+        <h3 class="section-title">최근 활동</h3>
         <div class="recent-list">
           <div 
-            v-for="restaurant in recentVisits" 
-            :key="restaurant.id"
+            v-for="item in recentVisits" 
+            :key="item.id"
             class="recent-item"
           >
             <div class="recent-info">
-              <span class="recent-name">{{ restaurant.name }}</span>
-              <span class="recent-category">{{ restaurant.category }}</span>
+              <span class="recent-name">{{ item.name }}</span>
+              <div class="recent-sub">
+                <span class="recent-category">{{ item.category }}</span>
+              </div>
             </div>
             <div class="recent-meta">
-              <span class="recent-rating">★ {{ restaurant.rating }}</span>
-              <span class="recent-date">{{ restaurant.visitDate }}</span>
+              <span :class="['recent-result', getResultClass(item.result)]">{{ formatResult(item.result) }}</span>
+              <span class="recent-date">{{ item.visitDate }}</span>
             </div>
+          </div>
+          <div v-if="recentVisits.length === 0" class="empty-list">
+            최근 활동 내역이 없습니다.
           </div>
         </div>
       </div>
@@ -103,6 +105,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import { statisticsApi } from '@/api/statistics'
 
 // 현재 월
 const currentMonth = computed(() => {
@@ -112,46 +115,90 @@ const currentMonth = computed(() => {
 
 // 통계 데이터
 const stats = ref({
-  monthlyReviews: 8,
-  monthlyVisits: 15,
-  monthlyRecommends: 23,
-  averageRating: '4.2'
+  monthlyVisits: 0,
+  monthlyRecommends: 0
 })
 
-// 카테고리별 통계
-const categoryStats = ref([
-  { category: '한식', count: 12, percentage: 100, color: '#FF6B6B' },
-  { category: '일식', count: 8, percentage: 67, color: '#4ECDC4' },
-  { category: '중식', count: 6, percentage: 50, color: '#45B7D1' },
-  { category: '양식', count: 5, percentage: 42, color: '#96CEB4' },
-  { category: '카페', count: 4, percentage: 33, color: '#FFEAA7' }
-])
+const categoryStats = ref([])
+const reactionStats = ref([])
+const recentVisits = ref([])
 
-// 평점 분포
-const ratingDistribution = ref([
-  { stars: 5, count: 8, percentage: 100 },
-  { stars: 4, count: 5, percentage: 63 },
-  { stars: 3, count: 3, percentage: 38 },
-  { stars: 2, count: 1, percentage: 13 },
-  { stars: 1, count: 0, percentage: 0 }
-])
-
-// 최근 방문
-const recentVisits = ref([
-  { id: 1, name: '맛있는 한식당', category: '한식', rating: 4.5, visitDate: '12/25' },
-  { id: 2, name: '스시 오마카세', category: '일식', rating: 5.0, visitDate: '12/20' },
-  { id: 3, name: '피자 팩토리', category: '양식', rating: 3.5, visitDate: '12/15' },
-  { id: 4, name: '딤섬 하우스', category: '중식', rating: 4.0, visitDate: '12/10' }
-])
+// 색상 팔레트
+const categoryColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#D4A5A5', '#9B59B6']
+const reactionConfig = {
+  ACCEPTED: { label: '승인', color: '#4ECDC4' },
+  REJECTED: { label: '거절', color: '#FF6B6B' },
+  PENDING: { label: '보류', color: '#FFEAA7' }
+}
 
 // 데이터 로드
 const loadStatistics = async () => {
   try {
-    // TODO: 실제 API 연결
-    // const response = await statisticsApi.getUserStats()
+    const now = new Date()
+    const from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+    const to = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+    
+    const params = { from, to }
+
+    // 병렬로 API 호출
+    const [categoriesRes, reactionsRes, recentRes] = await Promise.all([
+      statisticsApi.getMyCategoryStats(params),
+      statisticsApi.getMyReactionStats(params),
+      statisticsApi.getMyRecentStats()
+    ])
+
+    // 카테고리 통계 처리
+    if (categoriesRes && categoriesRes.data) {
+      const total = categoriesRes.data.reduce((sum, item) => sum + item.value, 0)
+      categoryStats.value = categoriesRes.data.map((item, index) => ({
+        category: item.label,
+        count: item.value,
+        percentage: total > 0 ? Math.round((item.value / total) * 100) : 0,
+        color: categoryColors[index % categoryColors.length]
+      })).sort((a, b) => b.count - a.count)
+    }
+
+    // 반응 통계 처리
+    if (reactionsRes && reactionsRes.data) {
+      const total = reactionsRes.data.reduce((sum, item) => sum + item.value, 0)
+      
+      // 요약 정보 업데이트
+      stats.value.monthlyRecommends = total
+      const acceptedItem = reactionsRes.data.find(item => item.label === 'ACCEPTED')
+      stats.value.monthlyVisits = acceptedItem ? acceptedItem.value : 0
+
+      // 차트 데이터
+      reactionStats.value = reactionsRes.data.map(item => {
+        const config = reactionConfig[item.label] || { label: item.label, color: '#ccc' }
+        return {
+          label: config.label,
+          count: item.value,
+          percentage: total > 0 ? Math.round((item.value / total) * 100) : 0,
+          color: config.color
+        }
+      })
+    }
+
+    // 최근 방문 처리
+    if (recentRes && recentRes.data) {
+      recentVisits.value = recentRes.data
+    }
+
   } catch (error) {
     console.error('통계 로드 실패:', error)
   }
+}
+
+const getResultClass = (result) => {
+  if (result === 'ACCEPTED') return 'text-success'
+  if (result === 'REJECTED') return 'text-danger'
+  return 'text-warning'
+}
+
+const formatResult = (result) => {
+  if (result === 'ACCEPTED') return '승인'
+  if (result === 'REJECTED') return '거절'
+  return '보류'
 }
 
 onMounted(() => {
@@ -238,6 +285,13 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+.empty-state, .empty-list {
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  padding: 20px 0;
+}
+
 /* 바 차트 */
 .bar-chart {
   display: flex;
@@ -255,6 +309,9 @@ onMounted(() => {
   width: 48px;
   font-size: 13px;
   color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bar-track {
@@ -279,12 +336,11 @@ onMounted(() => {
   text-align: right;
 }
 
-/* 평점 차트 */
+/* 평점 차트 (재사용) */
 .rating-chart {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 20px;
 }
 
 .rating-item {
@@ -309,7 +365,6 @@ onMounted(() => {
 
 .rating-fill {
   height: 100%;
-  background: #FFB800;
   border-radius: 8px;
   transition: width 0.5s ease;
 }
@@ -319,26 +374,6 @@ onMounted(() => {
   font-size: 13px;
   color: #666;
   text-align: right;
-}
-
-.average-rating {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
-}
-
-.avg-label {
-  font-size: 14px;
-  color: #666;
-}
-
-.avg-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #333;
 }
 
 /* 최근 방문 */
@@ -389,11 +424,14 @@ onMounted(() => {
   gap: 4px;
 }
 
-.recent-rating {
+.recent-result {
   font-size: 13px;
   font-weight: 500;
-  color: #FFB800;
 }
+
+.text-success { color: #4ECDC4; }
+.text-danger { color: #FF6B6B; }
+.text-warning { color: #FFEAA7; }
 
 .recent-date {
   font-size: 12px;

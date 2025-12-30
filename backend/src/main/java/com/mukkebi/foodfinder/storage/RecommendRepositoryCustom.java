@@ -17,4 +17,7 @@ public interface RecommendRepositoryCustom {
     StatisticsResponse findDistanceStats(LocalDate from, LocalDate to, Long userId);
 
     List<StatisticsResponse> findReactionStats(LocalDate from, LocalDate to, Long userId);
+
+    List<com.mukkebi.foodfinder.core.api.controller.v1.response.RecentActivityResponse> findRecentStats(Long userId,
+            int limit);
 }

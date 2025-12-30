@@ -1,5 +1,6 @@
 package com.mukkebi.foodfinder.core.domain;
 
+import com.mukkebi.foodfinder.core.api.controller.v1.response.RecentActivityResponse;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.StatisticsResponse;
 import com.mukkebi.foodfinder.storage.RecommendRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +45,10 @@ public class StatisticsService {
     // 6. 추천 반응 통계
     public List<StatisticsResponse> getReactionStats(LocalDate from, LocalDate to, Long userId) {
         return recommendRepository.findReactionStats(from, to, userId);
+    }
+
+    // 7. 최근 활동 내역
+    public List<RecentActivityResponse> getRecentStats(Long userId) {
+        return recommendRepository.findRecentStats(userId, 5); // 최근 5건 제한
     }
 }

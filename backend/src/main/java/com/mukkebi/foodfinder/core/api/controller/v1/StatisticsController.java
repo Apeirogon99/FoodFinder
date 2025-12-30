@@ -1,6 +1,7 @@
 package com.mukkebi.foodfinder.core.api.controller.v1;
 
 import com.mukkebi.foodfinder.core.api.controller.v1.request.StatisticsRequest;
+import com.mukkebi.foodfinder.core.api.controller.v1.response.RecentActivityResponse;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.StatisticsResponse;
 import com.mukkebi.foodfinder.core.domain.StatisticsService;
 import com.mukkebi.foodfinder.core.domain.User;
@@ -72,6 +73,13 @@ public class StatisticsController {
             @AuthenticationPrincipal OAuth2User oauth2User) {
         Long userId = resolveUserId(oauth2User);
         return ApiResult.success(statisticsService.getReactionStats(request.from(), request.to(), userId));
+    }
+
+    @GetMapping("/api/v1/stats/user/recent")
+    public ApiResult<List<RecentActivityResponse>> getMyRecentStats(
+            @AuthenticationPrincipal OAuth2User oauth2User) {
+        Long userId = resolveUserId(oauth2User);
+        return ApiResult.success(statisticsService.getRecentStats(userId));
     }
 
     // --- [ Admin Endpoints: 전체/타인 통계 ] ---

@@ -1,5 +1,6 @@
 package com.mukkebi.foodfinder.storage;
 
+import com.mukkebi.foodfinder.core.api.controller.v1.response.RecentActivityResponse;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.StatisticsResponse;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -15,27 +16,28 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom {
 
   private final EntityManager em;
 
-  @Override
-  public List<StatisticsResponse> findWeeklyStats(LocalDate from, LocalDate to, Long userId) {
-    return em.createQuery("""
-        SELECT new com.mukkebi.foodfinder.core.api.controller.v1.response.StatisticsResponse(
-            CASE CAST(function('date_part', 'dow', r.createdAt) AS integer)
-                WHEN 0 THEN '일' WHEN 1 THEN '월' WHEN 2 THEN '화'
-                WHEN 3 THEN '수' WHEN 4 THEN '목' WHEN 5 THEN '금'
-                WHEN 6 THEN '토' END, COUNT(r))
-          FROM Recommend r
-         WHERE r.createdAt BETWEEN :from AND :to
-           AND (:userId IS NULL OR r.userId = :userId)
-         GROUP BY CAST(function('date_part', 'dow', r.createdAt) AS integer)
-         ORDER BY CAST(function('date_part', 'dow', r.createdAt) AS integer)
-        """, StatisticsResponse.class)
-        .setParameter("from", from.atStartOfDay())
-        .setParameter("to", to.atTime(LocalTime.MAX))
-        .setParameter("userId", userId)
-        .getResultList();
-  }
+    @Override
+    public List<StatisticsResponse> findWeeklyStats(LocalDate from, LocalDate to, Long userId) {
+        return em.createQuery("""
+                SELECT new com.mukkebi.foodfinder.core.api.controller.v1.response.StatisticsResponse(
+                    CASE function('DAYOFWEEK', r.createdAt)
+                        WHEN 1 THEN '일' WHEN 2 THEN '월' WHEN 3 THEN '화'
+                        WHEN 4 THEN '수' WHEN 5 THEN '목' WHEN 6 THEN '금'
+                        WHEN 7 THEN '토' END, COUNT(r))
+                FROM Recommend r
+                WHERE r.createdAt BETWEEN :from AND :to
+                AND (:userId IS NULL OR r.userId = :userId)
+                GROUP BY function('DAYOFWEEK', r.createdAt)
+                ORDER BY function('DAYOFWEEK', r.createdAt)
+                """, StatisticsResponse.class)
+                .setParameter("from", from.atStartOfDay())
+                .setParameter("to", to.atTime(LocalTime.MAX))
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 
-  @Override
+
+    @Override
   public List<StatisticsResponse> findCategoryStats(LocalDate from, LocalDate to, Long userId) {
     return em.createQuery("""
         SELECT new com.mukkebi.foodfinder.core.api.controller.v1.response.StatisticsResponse(r.category, COUNT(r))
@@ -117,6 +119,20 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom {
         .setParameter("from", from.atStartOfDay())
         .setParameter("to", to.atTime(LocalTime.MAX))
         .setParameter("userId", userId)
+        .getResultList();
+  }
+
+  @Override
+  public List<RecentActivityResponse> findRecentStats(Long userId, int limit) {
+    return em.createQuery("""
+        SELECT new com.mukkebi.foodfinder.core.api.controller.v1.response.RecentActivityResponse(
+            r.id, r.restaurantName, r.category, r.createdAt, r.result)
+          FROM Recommend r
+         WHERE (:userId IS NULL OR r.userId = :userId)
+         ORDER BY r.createdAt DESC
+        """, RecentActivityResponse.class)
+        .setParameter("userId", userId)
+        .setMaxResults(limit)
         .getResultList();
   }
 }
