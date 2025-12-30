@@ -10,14 +10,14 @@ public record ReviewResponse(
         String content,
         Double rating,
         String userNickname,
-        Long restaurantI
+        String restaurantName
 ) {
     public static ReviewResponse of(Review review, User user) {
         return new ReviewResponse(
                 review.getContent(),
                 review.getRating(),
                 user.getNickname(),
-                review.getRestaurantId()
+                review.getRestaurantName()
         );
     }
 }

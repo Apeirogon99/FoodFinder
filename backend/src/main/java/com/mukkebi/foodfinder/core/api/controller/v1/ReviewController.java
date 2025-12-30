@@ -5,7 +5,10 @@ import com.mukkebi.foodfinder.core.api.controller.v1.response.RestaurantReviewLi
 import com.mukkebi.foodfinder.core.api.controller.v1.response.UserReviewListResponse;
 import com.mukkebi.foodfinder.core.domain.ReviewReader;
 import com.mukkebi.foodfinder.core.domain.ReviewService;
+import com.mukkebi.foodfinder.core.support.error.CoreException;
+import com.mukkebi.foodfinder.core.support.error.ErrorType;
 import com.mukkebi.foodfinder.core.support.response.ApiResult;
+import com.mukkebi.foodfinder.core.support.security.OAuthUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -23,9 +26,14 @@ public class ReviewController {
     public ApiResult<?> postReview(
             @RequestBody ReviewRequest reviewRequest,
             @PathVariable Long restaurantId,
-            @AuthenticationPrincipal OAuth2User oauth2User
+            @AuthenticationPrincipal OAuthUserPrincipal oauth2User
     ) {
-        reviewService.saveReview(reviewRequest, restaurantId, oauth2User);
+        if (oauth2User == null) {
+            throw new CoreException(ErrorType.DEFAULT_ERROR);
+        }
+
+        Long userId=oauth2User.getUserId();
+        reviewService.saveReview(reviewRequest, restaurantId, userId);
         return ApiResult.success();
     }
 
@@ -34,9 +42,14 @@ public class ReviewController {
     public ApiResult<?> updateReview(
             @RequestBody ReviewRequest reviewRequest,
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal OAuth2User oauth2User
+            @AuthenticationPrincipal OAuthUserPrincipal oauth2User
     ) {
-        reviewService.updateReview(reviewRequest, reviewId, oauth2User);
+        if (oauth2User == null) {
+            throw new CoreException(ErrorType.DEFAULT_ERROR);
+        }
+
+        Long userId=oauth2User.getUserId();
+        reviewService.updateReview(reviewRequest, reviewId, userId);
         return ApiResult.success();
     }
 
@@ -44,20 +57,32 @@ public class ReviewController {
     @DeleteMapping("/api/v1/reviews/{reviewId}")
     public ApiResult<?> deleteReview(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal OAuth2User oauth2User
+            @AuthenticationPrincipal OAuthUserPrincipal oauth2User
     ) {
-        reviewService.deleteReview(reviewId, oauth2User);
+
+        if (oauth2User == null) {
+            throw new CoreException(ErrorType.DEFAULT_ERROR);
+        }
+
+        Long userId=oauth2User.getUserId();
+        reviewService.deleteReview(reviewId, userId);
         return ApiResult.success();
     }
 
    //내 리뷰 조회
     @GetMapping("/api/v1/reviews/me")
     public ApiResult<UserReviewListResponse> getMyReviews(
-            @AuthenticationPrincipal OAuth2User oauth2User,
+            @AuthenticationPrincipal OAuthUserPrincipal oauth2User,
             @RequestParam(required = false) Long cursorId
     ) {
+        if (oauth2User == null) {
+            throw new CoreException(ErrorType.DEFAULT_ERROR);
+        }
+        System.out.println(oauth2User.getUserId());
+
+        Long userId=oauth2User.getUserId();
         return ApiResult.success(
-                reviewReader.getMyReviews(oauth2User, cursorId)
+                reviewReader.getMyReviews(userId, cursorId)
         );
     }
 

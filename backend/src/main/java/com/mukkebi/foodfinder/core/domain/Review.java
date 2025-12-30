@@ -34,21 +34,29 @@ public class Review extends BaseEntity {
     @Column(nullable=false, name = "user_id")
     private Long userId;
 
+    @Column(nullable=false)
+    private String nickname;
+
     @Column(nullable=false, name = "restaurant_id")
     private Long restaurantId;
 
-    protected Review(String content, Double rating, Long userId, Long restaurantId) {
+    @Column(nullable=false)
+    private String restaurantName;
+
+    protected Review(String content, Double rating, Long userId,String nickname, Long restaurantId, String restaurantName) {
         this.content = content;
         this.rating = rating;
         this.userId = userId;
+        this.nickname = nickname;
         this.restaurantId = restaurantId;
+        this.restaurantName = restaurantName;
     }
 
-    public static Review create(String content, Double rating, Long userId, Long restaurantId) {
-        return new Review(content, rating, userId, restaurantId);
+    public static Review create( String content, Double rating, Long userId,String nickname, Long restaurantId, String restaurantName) {
+        return new Review(content, rating, userId,nickname, restaurantId,restaurantName);
     }
 
-    public void update(String content, Double rating) {
+    public void update( String content, Double rating) {
         this.content = content;
         this.rating = rating;
     }

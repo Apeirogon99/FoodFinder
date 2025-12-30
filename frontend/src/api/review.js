@@ -37,7 +37,7 @@ export const reviewApi = {
    */
   async getMyReviews(cursorId = null) {
     const params = cursorId ? { cursorId } : {}
-    const response = await api.get('/v1/reviews/me', { params })
+    const response = await api.get(`/v1/reviews/me`, { params })
     return response.data
   },
 
