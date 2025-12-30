@@ -3,101 +3,114 @@
     <!-- 로딩 상태 -->
     <div v-if="isLoading" class="loading-section">
       <div class="loading-content">
-        <el-icon class="loading-icon" :size="48">
+        <div class="loading-emoji">🍽️</div>
+        <el-icon class="loading-icon" :size="32">
           <Loading />
         </el-icon>
-        <h3>AI가 맛집을 찾고 있어요...</h3>
+        <h3>AI가 맛집을 찾고 있어요</h3>
         <p>잠시만 기다려주세요</p>
       </div>
     </div>
 
     <!-- 메인 컨텐츠 -->
-    <template v-else>
+    <div v-else class="result-container">
+      <!-- AI 추천 배지 -->
+      <div class="ai-badge">
+        <span class="badge-icon">🤖</span>
+        <span class="badge-text">AI 추천</span>
+      </div>
+
+      <!-- 식당 이름 & 카테고리 -->
+      <div class="restaurant-header">
+        <h1 class="restaurant-name">{{ restaurant.name || '추천 음식점' }}</h1>
+        <p class="restaurant-category">{{ restaurant.category || '맛집' }}</p>
+      </div>
+
+      <!-- 평점 & 거리 -->
+      <div class="quick-info">
+        <div class="info-chip rating">
+          <span class="chip-icon">⭐</span>
+          <span class="chip-value">{{ formattedRating }}</span>
+        </div>
+        <div class="info-chip distance">
+          <span class="chip-icon">📍</span>
+          <span class="chip-value">{{ formattedDistance }}</span>
+        </div>
+        <div v-if="restaurant.reviewCount" class="info-chip reviews" @click="goToRestaurantReviews">
+          <span class="chip-icon">💬</span>
+          <span class="chip-value">리뷰 {{ restaurant.reviewCount }}개</span>
+        </div>
+      </div>
+
       <!-- 카카오맵 영역 -->
-      <div class="map-section">
-        <div v-if="isMapLoading" class="map-loading">
-          <el-icon class="loading-icon" :size="24"><Loading /></el-icon>
+      <div class="map-wrapper">
+        <div class="map-section">
+          <div v-if="isMapLoading" class="map-loading">
+            <el-icon class="loading-icon" :size="24"><Loading /></el-icon>
+          </div>
+          <div ref="mapContainer" class="map-container"></div>
         </div>
-        <div ref="mapContainer" class="map-container"></div>
-      </div>
-
-      <!-- 음식점 정보 카드 -->
-      <div class="restaurant-card">
-        <!-- 이름 & 평점 -->
-        <div class="card-header">
-          <h2 class="restaurant-name">{{ restaurant.name || 'Restaurant' }}</h2>
-          <div class="rating-badge">
-            <span class="rating-star">★</span>
-            <span class="rating-value">{{ formattedRating }}</span>
-          </div>
-        </div>
-
-        <!-- 상세 정보 -->
-        <div class="info-list">
-          <div class="info-item">
-            <span class="info-label">Category</span>
-            <span class="info-value">{{ restaurant.category || '-' }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Phone</span>
-            <span class="info-value">{{ restaurant.phone || '-' }}</span>
-          </div>
-          <div class="info-row">
-            <div class="info-item half">
-              <span class="info-label">Address</span>
-              <span class="info-value truncate">{{ shortAddress }}</span>
-            </div>
-            <div class="info-item half">
-              <span class="info-label">Distance</span>
-              <span class="info-value">{{ formattedDistance }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- AI 추천 이유 -->
-        <div class="ai-recommend-section">
-          <label class="recommend-label">AI 추천 이유</label>
-          <div class="recommend-content">
-            {{ restaurant.recommend || '맛있는 음식점입니다!' }}
-          </div>
-        </div>
-
-        <!-- 리뷰 미리보기 -->
-        <div class="review-preview" @click="goToRestaurantReviews">
-          <div class="preview-header">
-            <span class="preview-title">리뷰 {{ restaurant.reviewCount || 0 }}개</span>
-            <el-icon><ArrowRight /></el-icon>
-          </div>
-        </div>
-
-        <!-- 버튼 영역 -->
-        <div class="button-group">
-          <el-button class="btn-secondary" @click="goBackToRecommend">
-            다른 추천
-          </el-button>
-          <el-button type="primary" class="btn-primary" @click="goToWriteReview">
-            리뷰 작성
-          </el-button>
+        <div class="address-bar">
+          <span class="address-icon">🏠</span>
+          <span class="address-text">{{ restaurant.roadAddress || restaurant.address || '주소 정보 없음' }}</span>
         </div>
       </div>
-    </template>
+
+      <!-- AI 추천 이유 -->
+      <div class="recommend-section">
+        <div class="section-header">
+          <span class="section-icon">💡</span>
+          <span class="section-title">AI 추천 이유</span>
+        </div>
+        <p class="recommend-text">{{ restaurant.recommend || '선택하신 조건에 맞는 맛집이에요!' }}</p>
+      </div>
+
+      <!-- 연락처 -->
+      <div v-if="restaurant.phone" class="contact-section">
+        <a :href="'tel:' + restaurant.phone" class="contact-link">
+          <span class="contact-icon">📞</span>
+          <span class="contact-text">{{ restaurant.phone }}</span>
+        </a>
+      </div>
+
+      <!-- 버튼 영역 -->
+      <div class="action-buttons">
+        <button 
+          class="btn-retry" 
+          :disabled="isReLoading"
+          @click="requestReRecommendation"
+        >
+          <span v-if="isReLoading" class="btn-loading">⏳</span>
+          <span v-else class="btn-icon">🔄</span>
+          <span class="btn-text">다른 추천</span>
+        </button>
+        <button class="btn-review" @click="goToWriteReview">
+          <span class="btn-icon">✍️</span>
+          <span class="btn-text">리뷰 작성</span>
+        </button>
+      </div>
+    </div>
   </AppLayout>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowRight, Loading } from '@element-plus/icons-vue'
+import { Loading } from '@element-plus/icons-vue'
 import { loadKakaoMap } from '@/utils/kakaoMapLoader'
+import { useRecommendStore } from '@/stores/recommend'
+import { recommendApi } from '@/api/recommend'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { ElMessage } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
+const recommendStore = useRecommendStore()
 
 // 상태
 const mapContainer = ref(null)
 const isLoading = ref(true)
+const isReLoading = ref(false)
 const isMapLoading = ref(true)
 
 // 음식점 데이터
@@ -120,6 +133,7 @@ const restaurant = ref({
 // 카카오맵 관련
 let map = null
 let marker = null
+let infowindow = null
 
 // Computed
 const formattedRating = computed(() => {
@@ -133,14 +147,6 @@ const formattedDistance = computed(() => {
     return `${(distance / 1000).toFixed(1)}km`
   }
   return `${Math.round(distance)}m`
-})
-
-const shortAddress = computed(() => {
-  const addr = restaurant.value.roadAddress || restaurant.value.address || '-'
-  if (addr.length > 20) {
-    return addr.substring(0, 20) + '...'
-  }
-  return addr
 })
 
 // 카카오맵 초기화
@@ -168,7 +174,6 @@ const initMap = async () => {
     map = new kakao.maps.Map(mapContainer.value, options)
     map.setZoomable(false)
     
-    // 음식점 위치 마커 생성
     const markerPosition = new kakao.maps.LatLng(
       restaurant.value.latitude,
       restaurant.value.longitude
@@ -184,8 +189,8 @@ const initMap = async () => {
       image: markerImage
     })
     
-    const infowindow = new kakao.maps.InfoWindow({
-      content: `<div style="padding:5px;font-size:12px;font-weight:bold;">${restaurant.value.name}</div>`
+    infowindow = new kakao.maps.InfoWindow({
+      content: `<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">${restaurant.value.name}</div>`
     })
     infowindow.open(map, marker)
     
@@ -197,16 +202,14 @@ const initMap = async () => {
   }
 }
 
-// 음식점 데이터 로드 (API 호출 또는 state에서)
+// 음식점 데이터 로드
 const loadRestaurantData = async () => {
   isLoading.value = true
   
   try {
-    // history.state에서 추천 결과 확인
     const stateResult = history.state?.recommendResult
     
     if (stateResult) {
-      // state에서 결과 사용
       restaurant.value = {
         id: stateResult.id || 'restaurant_001',
         name: stateResult.name || '추천 음식점',
@@ -223,7 +226,6 @@ const loadRestaurantData = async () => {
         reviewCount: stateResult.reviewCount || 0
       }
     } else {
-      // state가 없으면 더미 데이터 사용
       restaurant.value = {
         id: 'restaurant_demo',
         name: '맛있는 식당 (데모)',
@@ -235,7 +237,7 @@ const loadRestaurantData = async () => {
         longitude: parseFloat(route.query.lng) || 126.9780,
         distance: 150,
         placeUrl: '',
-        recommend: '백엔드 API 연동 후 실제 AI 추천 결과가 표시됩니다. 현재는 데모 데이터입니다.',
+        recommend: '백엔드 API 연동 후 실제 AI 추천 결과가 표시됩니다.',
         rating: 4.5,
         reviewCount: 23
       }
@@ -252,9 +254,86 @@ const loadRestaurantData = async () => {
   }
 }
 
-// 다시 Recommend로 돌아가기 (처음부터 다시)
-const goBackToRecommend = () => {
-  router.push('/recommend')
+// 재추천 요청
+const requestReRecommendation = async () => {
+  if (!recommendStore.hasContext) {
+    ElMessage.info('추천 조건을 다시 선택해주세요.')
+    router.push('/recommend')
+    return
+  }
+  
+  isReLoading.value = true
+  
+  try {
+    const requestData = recommendStore.getRecommendRequest
+    console.log('📤 재추천 요청 데이터:', requestData)
+    
+    let response = null
+    try {
+      response = await recommendApi.getRecommendation(requestData)
+      console.log('📥 재추천 응답:', response)
+    } catch (apiError) {
+      console.warn('API 호출 실패:', apiError)
+      
+      if (apiError.response?.status === 404 || apiError.response?.data?.message?.includes('없')) {
+        ElMessage.warning('주변에 더 이상 추천할 식당이 없습니다.')
+        return
+      }
+      throw apiError
+    }
+    
+    if (response.id) {
+      recommendStore.addExcludedRestaurant(response.id)
+    }
+    
+    restaurant.value = {
+      id: response.id || 'restaurant_new',
+      name: response.name || '추천 음식점',
+      category: response.category || '',
+      phone: response.phone || '',
+      address: response.address || '',
+      roadAddress: response.roadAddress || '',
+      latitude: response.latitude || restaurant.value.latitude,
+      longitude: response.longitude || restaurant.value.longitude,
+      distance: response.distance || 0,
+      placeUrl: response.placeUrl || '',
+      recommend: response.recommend || '',
+      rating: response.rating || 0,
+      reviewCount: response.reviewCount || 0
+    }
+    
+    await nextTick()
+    await updateMapMarker()
+    
+    ElMessage.success('새로운 맛집을 추천해드렸어요!')
+    
+  } catch (error) {
+    console.error('재추천 요청 실패:', error)
+    ElMessage.error('추천 요청에 실패했습니다.')
+  } finally {
+    isReLoading.value = false
+  }
+}
+
+// 지도 마커 업데이트
+const updateMapMarker = async () => {
+  if (!map || !window.kakao) return
+  
+  try {
+    const kakao = window.kakao
+    const newPosition = new kakao.maps.LatLng(
+      restaurant.value.latitude,
+      restaurant.value.longitude
+    )
+    
+    map.setCenter(newPosition)
+    if (marker) marker.setPosition(newPosition)
+    if (infowindow) {
+      infowindow.setContent(`<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">${restaurant.value.name}</div>`)
+    }
+  } catch (error) {
+    console.error('지도 마커 업데이트 실패:', error)
+  }
 }
 
 // 리뷰 작성 페이지로 이동
@@ -285,6 +364,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (infowindow) infowindow.close()
   if (marker) marker.setMap(null)
 })
 </script>
@@ -296,16 +376,30 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100%;
 }
 
 .loading-content {
   text-align: center;
+  color: white;
+}
+
+.loading-emoji {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .loading-icon {
   animation: rotate 1s linear infinite;
-  color: #667eea;
+  color: white;
   margin-bottom: 16px;
 }
 
@@ -315,23 +409,112 @@ onUnmounted(() => {
 }
 
 .loading-content h3 {
-  font-size: 18px;
-  color: #333;
+  font-size: 20px;
+  font-weight: 600;
   margin: 0 0 8px 0;
 }
 
 .loading-content p {
   font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* 결과 컨테이너 */
+.result-container {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100%;
+}
+
+/* AI 배지 */
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.badge-icon {
+  font-size: 14px;
+}
+
+/* 식당 헤더 */
+.restaurant-header {
+  margin-bottom: 16px;
+}
+
+.restaurant-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+}
+
+.restaurant-category {
+  font-size: 14px;
   color: #666;
   margin: 0;
 }
 
-/* 맵 영역 */
+/* 빠른 정보 */
+.quick-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.info-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.info-chip.reviews {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.info-chip.reviews:hover {
+  background: #f0f0f0;
+}
+
+.chip-icon {
+  font-size: 14px;
+}
+
+.chip-value {
+  font-weight: 600;
+  color: #333;
+}
+
+/* 지도 래퍼 */
+.map-wrapper {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin-bottom: 16px;
+}
+
 .map-section {
+  width: 100%;
   height: 180px;
-  flex-shrink: 0;
   position: relative;
-  background: #f5f5f5;
+  background: #e9ecef;
 }
 
 .map-container {
@@ -347,168 +530,153 @@ onUnmounted(() => {
   z-index: 10;
 }
 
-/* 음식점 카드 */
-.restaurant-card {
+.address-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fafafa;
+  border-top: 1px solid #eee;
+}
+
+.address-icon {
+  font-size: 16px;
+}
+
+.address-text {
+  font-size: 13px;
+  color: #555;
   flex: 1;
-  padding: 20px;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* 추천 이유 섹션 */
+.recommend-section {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
   margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.restaurant-name {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
-  margin: 0;
-}
-
-.rating-badge {
+.section-header {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: #FFF9E6;
-  padding: 6px 12px;
-  border-radius: 20px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-.rating-star {
-  color: #FFB800;
-  font-size: 14px;
+.section-icon {
+  font-size: 18px;
 }
 
-.rating-value {
-  font-size: 14px;
+.section-title {
+  font-size: 15px;
   font-weight: 600;
   color: #333;
 }
 
-/* 정보 리스트 */
-.info-list {
-  margin-bottom: 16px;
-}
-
-.info-item {
-  margin-bottom: 8px;
-}
-
-.info-row {
-  display: flex;
-  gap: 16px;
-}
-
-.info-item.half {
-  flex: 1;
-}
-
-.info-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: #999;
-  margin-bottom: 2px;
-}
-
-.info-value {
-  display: block;
-  font-size: 14px;
-  color: #333;
-}
-
-.info-value.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* AI 추천 영역 */
-.ai-recommend-section {
-  margin-bottom: 16px;
-}
-
-.recommend-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: #999;
-  margin-bottom: 8px;
-}
-
-.recommend-content {
-  padding: 16px;
-  background: #f9f9f9;
-  border: 1px solid #eee;
-  border-radius: 8px;
+.recommend-text {
   font-size: 14px;
   line-height: 1.6;
   color: #555;
+  margin: 0;
 }
 
-/* 리뷰 미리보기 */
-.review-preview {
-  padding: 14px 16px;
-  background: white;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  cursor: pointer;
-  transition: background 0.2s;
+/* 연락처 섹션 */
+.contact-section {
+  margin-bottom: 16px;
 }
 
-.review-preview:hover {
-  background: #f9f9f9;
-}
-
-.preview-header {
+.contact-link {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 14px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: all 0.2s;
 }
 
-.preview-title {
-  font-size: 14px;
-  font-weight: 500;
+.contact-link:hover {
+  background: #f8f9fa;
+}
+
+.contact-icon {
+  font-size: 18px;
+}
+
+.contact-text {
+  font-size: 15px;
   color: #333;
+  font-weight: 500;
 }
 
-/* 버튼 그룹 */
-.button-group {
+/* 액션 버튼 */
+.action-buttons {
   display: flex;
   gap: 12px;
+  padding-top: 8px;
 }
 
-.btn-secondary {
+.btn-retry,
+.btn-review {
   flex: 1;
-  height: 48px;
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
   font-weight: 600;
-  border-radius: 8px;
-  background: #fff;
-  border-color: #ddd;
-  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.btn-secondary:hover {
+.btn-retry {
+  background: white;
+  color: #333;
+  border: 2px solid #e0e0e0;
+}
+
+.btn-retry:hover:not(:disabled) {
   background: #f5f5f5;
   border-color: #ccc;
 }
 
-.btn-primary {
-  flex: 1;
-  height: 48px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 8px;
-  background: #333;
-  border-color: #333;
+.btn-retry:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.btn-primary:hover {
-  background: #555;
-  border-color: #555;
+.btn-review {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-review:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  font-size: 18px;
+}
+
+.btn-loading {
+  font-size: 18px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.btn-text {
+  font-size: 15px;
 }
 </style>

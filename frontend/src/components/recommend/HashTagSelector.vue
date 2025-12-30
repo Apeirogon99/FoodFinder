@@ -30,7 +30,7 @@
           <el-tag
             v-for="tag in tags"
             :key="tag.code"
-            :type="isSelected(tag.code) ? '' : 'info'"
+            :type="isSelected(tag.code) ? 'primary' : 'info'"
             :effect="isSelected(tag.code) ? 'dark' : 'plain'"
             class="hashtag-tag"
             size="large"
@@ -46,7 +46,7 @@
     <div v-if="selectedTags.length > 0" class="selected-section">
       <div class="selected-header">
         <span class="selected-label">선택된 태그 ({{ selectedTags.length }})</span>
-        <el-button type="text" size="small" @click="clearSelection">
+        <el-button link size="small" @click="clearSelection">
           전체 해제
         </el-button>
       </div>

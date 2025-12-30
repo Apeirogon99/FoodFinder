@@ -34,12 +34,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import HashTagSelector from '@/components/recommend/HashTagSelector.vue'
+import { useRecommendStore } from '@/stores/recommend'
 
 const router = useRouter()
+const recommendStore = useRecommendStore()
 
 // 상태
 const selectedTags = ref([])
@@ -57,6 +59,11 @@ const goToSearch = () => {
     }
   })
 }
+
+// 컴포넌트 마운트 시 추천 스토어 초기화 (새로운 추천 시작)
+onMounted(() => {
+  recommendStore.clearAll()
+})
 </script>
 
 <style scoped>

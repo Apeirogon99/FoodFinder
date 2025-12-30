@@ -95,6 +95,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Loading } from '@element-plus/icons-vue'
 import { loadKakaoMap } from '@/utils/kakaoMapLoader'
 import { useLocationStore } from '@/stores/location'
+import { useRecommendStore } from '@/stores/recommend'
 import { getHashtagByCode } from '@/constants/hashtags'
 import { recommendApi } from '@/api/recommend'
 import AppLayout from '@/components/layout/AppLayout.vue'
@@ -103,6 +104,7 @@ import { ElMessage } from 'element-plus'
 const route = useRoute()
 const router = useRouter()
 const locationStore = useLocationStore()
+const recommendStore = useRecommendStore()
 
 // Recommend에서 전달받은 태그 정보
 const selectedTags = ref([])
@@ -250,9 +252,9 @@ const getCurrentLocation = () => {
       hasLocation.value = true // 기본 위치로 진행
     },
     {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0
+      enableHighAccuracy: false,
+      timeout: 5000,
+      maximumAge: 60000
     }
   )
 }
@@ -294,6 +296,17 @@ const requestRecommendation = async () => {
   isLoading.value = true
   
   try {
+    // 새로운 추천 시작 전 스토어 초기화
+    recommendStore.clearAll()
+    
+    // 추천 컨텍스트 저장
+    recommendStore.setContext({
+      latitude: currentPosition.value.latitude,
+      longitude: currentPosition.value.longitude,
+      radius: radius.value,
+      hashTagCodes: selectedTags.value
+    })
+    
     // 백엔드에 전송할 데이터
     const requestData = {
       latitude: currentPosition.value.latitude,
@@ -327,6 +340,11 @@ const requestRecommendation = async () => {
         rating: 4.5,
         reviewCount: 23
       }
+    }
+    
+    // 추천된 식당 ID를 제외 목록에 추가
+    if (response.id) {
+      recommendStore.addExcludedRestaurant(response.id)
     }
     
     // Restaurant 페이지로 이동 (결과 데이터와 함께)
