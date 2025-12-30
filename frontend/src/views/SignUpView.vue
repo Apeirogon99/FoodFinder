@@ -1,0 +1,234 @@
+<template>
+  <div class="signup-view">
+    <div class="signup-container">
+      <!-- 헤더 -->
+      <div class="signup-header">
+        <h1>프로필 설정</h1>
+        <p>서비스 이용을 위해 프로필을 설정해주세요</p>
+      </div>
+
+      <!-- 폼 -->
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        label-position="top"
+        class="signup-form"
+      >
+        <!-- 닉네임 -->
+        <el-form-item label="닉네임" prop="nickname">
+          <el-input
+            v-model="form.nickname"
+            placeholder="닉네임을 입력해주세요"
+            maxlength="20"
+            show-word-limit
+            size="large"
+          />
+        </el-form-item>
+
+        <!-- 알레르기/식이제한 선택 -->
+        <el-form-item label="알레르기 및 식이제한 (선택)">
+          <div class="allergy-section">
+            <!-- 알레르기 그룹 -->
+            <div
+              v-for="(items, groupName) in allergyGroups"
+              :key="groupName"
+              class="allergy-group"
+            >
+              <h4 class="group-title">{{ groupName }}</h4>
+              <div class="allergy-tags">
+                <el-tag
+                  v-for="item in items"
+                  :key="item.code"
+                  :type="isSelected(item.code) ? 'primary' : 'info'"
+                  :effect="isSelected(item.code) ? 'dark' : 'plain'"
+                  class="allergy-tag"
+                  @click="toggleAllergy(item.code)"
+                >
+                  {{ item.label }}
+                </el-tag>
+              </div>
+            </div>
+          </div>
+        </el-form-item>
+
+        <!-- 제출 버튼 -->
+        <el-form-item>
+          <el-button
+            type="primary"
+            size="large"
+            class="submit-btn"
+            :loading="isLoading"
+            @click="handleSubmit"
+          >
+            시작하기
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { ALLERGY_TYPES_BY_GROUP } from '@/constants/allergies'
+import { ElMessage } from 'element-plus'
+
+const router = useRouter()
+const userStore = useUserStore()
+
+const formRef = ref(null)
+const isLoading = ref(false)
+
+// 폼 데이터
+const form = reactive({
+  nickname: '',
+  selectedAllergies: [],
+})
+
+// 유효성 규칙
+const rules = {
+  nickname: [
+    { required: true, message: '닉네임을 입력해주세요', trigger: 'blur' },
+    { min: 2, max: 20, message: '2~20자로 입력해주세요', trigger: 'blur' },
+  ],
+}
+
+// 그룹별 알레르기 목록
+const allergyGroups = computed(() => ALLERGY_TYPES_BY_GROUP)
+
+// 알레르기 선택 여부 확인
+const isSelected = (code) => {
+  return form.selectedAllergies.includes(code)
+}
+
+// 알레르기 토글
+const toggleAllergy = (code) => {
+  const index = form.selectedAllergies.indexOf(code)
+  if (index === -1) {
+    form.selectedAllergies.push(code)
+  } else {
+    form.selectedAllergies.splice(index, 1)
+  }
+}
+
+// 제출 처리
+const handleSubmit = async () => {
+  try {
+    // 폼 유효성 검사
+    const valid = await formRef.value.validate()
+    if (!valid) return
+
+    isLoading.value = true
+
+    // 회원가입 요청
+    const requestData = {
+      nickname: form.nickname,
+      allergies: form.selectedAllergies.map((code) => ({
+        allergyType: code,
+      })),
+    }
+
+    await userStore.signUp(requestData)
+
+    ElMessage.success('프로필 설정이 완료되었습니다!')
+    router.replace('/')
+  } catch (error) {
+    console.error('회원가입 실패:', error)
+    ElMessage.error('프로필 설정에 실패했습니다. 다시 시도해주세요.')
+  } finally {
+    isLoading.value = false
+  }
+}
+</script>
+
+<style scoped>
+.signup-view {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-container {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 헤더 */
+.signup-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.signup-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.signup-header p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+/* 폼 */
+.signup-form {
+  width: 100%;
+}
+
+/* 알레르기 섹션 */
+.allergy-section {
+  width: 100%;
+}
+
+.allergy-group {
+  margin-bottom: 16px;
+}
+
+.allergy-group:last-child {
+  margin-bottom: 0;
+}
+
+.group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 8px 0;
+}
+
+.allergy-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.allergy-tag {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.allergy-tag:hover {
+  transform: scale(1.05);
+}
+
+/* 제출 버튼 */
+.submit-btn {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+</style>

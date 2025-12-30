@@ -1,10 +1,13 @@
 package com.mukkebi.foodfinder.core.domain;
 
+import com.mukkebi.foodfinder.core.enums.RecommendationResult;
 import com.mukkebi.foodfinder.storage.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -47,9 +50,9 @@ public class Recommend extends BaseEntity {
     @Column(name = "menu", length = 255)
     private String menu;
 
-    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
-    @Column(name = "result")
-    private com.mukkebi.foodfinder.core.enums.RecommendationResult result;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "result", nullable = false)
+    private RecommendationResult result = RecommendationResult.PENDING;
 
     // --- [ Snapshot Fields ] ---
 
@@ -63,12 +66,12 @@ public class Recommend extends BaseEntity {
     private Double distanceAtTime;
 
     @Column(nullable = false)
-    private Double preferredDistanceAtTime; // 기본값 0.0 처리 예정
+    private Double preferredDistanceAtTime;
 
-    @lombok.Builder
+    @Builder
     private Recommend(Long userId, Long restaurantId, String restaurantName, String category,
             String address, String roadAddress, Double latitude, Double longitude,
-            Double distance, String reason, String menu,
+            Double distance, String reason, String menu, RecommendationResult result,
             String restaurantNameAtTime, String categoryAtTime,
             Double distanceAtTime, Double preferredDistanceAtTime) {
         this.userId = userId;
@@ -82,6 +85,7 @@ public class Recommend extends BaseEntity {
         this.distance = distance;
         this.reason = reason;
         this.menu = menu;
+        this.result = result != null ? result : RecommendationResult.PENDING;
         this.restaurantNameAtTime = restaurantNameAtTime;
         this.categoryAtTime = categoryAtTime;
         this.distanceAtTime = distanceAtTime;
@@ -104,11 +108,19 @@ public class Recommend extends BaseEntity {
                 .distance(distance)
                 .reason(reason)
                 .menu(menu)
+                .result(RecommendationResult.PENDING)  // 기본값: PENDING
                 // 스냅샷 필드 자동 주입
                 .restaurantNameAtTime(restaurantName)
                 .categoryAtTime(category)
                 .distanceAtTime(distance)
-                .preferredDistanceAtTime(0.0) // Service에서 알 수 없으므로 0.0 처리
+                .preferredDistanceAtTime(0.0)
                 .build();
+    }
+
+    /**
+     * 추천 결과 업데이트
+     */
+    public void updateResult(RecommendationResult result) {
+        this.result = result;
     }
 }

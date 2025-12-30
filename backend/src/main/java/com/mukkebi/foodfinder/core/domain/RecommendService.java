@@ -39,7 +39,7 @@ public class RecommendService {
         // 1. 해시태그 코드 → 설명(promptMessage) 조회
         List<HashTag> hashTags = hashTagRepository.findAllByCodeIn(request.hashTagCodes());
         if (hashTags.isEmpty()) {
-            throw new CoreException(ErrorType.DEFAULT_ERROR, "선택한 해시태그를 찾을 수 없습니다.");
+            //throw new CoreException(ErrorType.DEFAULT_ERROR, "선택한 해시태그를 찾을 수 없습니다.");
         }
 
         List<String> hashTagDescriptions = hashTags.stream()

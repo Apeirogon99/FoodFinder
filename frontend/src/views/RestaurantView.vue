@@ -1,14 +1,23 @@
 <template>
-  <AppLayout>
+  <AppLayout title="추천 결과" :show-back="true">
     <!-- 로딩 상태 -->
     <div v-if="isLoading" class="loading-section">
-      <el-skeleton :rows="5" animated />
+      <div class="loading-content">
+        <el-icon class="loading-icon" :size="48">
+          <Loading />
+        </el-icon>
+        <h3>AI가 맛집을 찾고 있어요...</h3>
+        <p>잠시만 기다려주세요</p>
+      </div>
     </div>
 
     <!-- 메인 컨텐츠 -->
     <template v-else>
       <!-- 카카오맵 영역 -->
       <div class="map-section">
+        <div v-if="isMapLoading" class="map-loading">
+          <el-icon class="loading-icon" :size="24"><Loading /></el-icon>
+        </div>
         <div ref="mapContainer" class="map-container"></div>
       </div>
 
@@ -18,6 +27,7 @@
         <div class="card-header">
           <h2 class="restaurant-name">{{ restaurant.name || 'Restaurant' }}</h2>
           <div class="rating-badge">
+            <span class="rating-star">★</span>
             <span class="rating-value">{{ formattedRating }}</span>
           </div>
         </div>
@@ -52,9 +62,17 @@
           </div>
         </div>
 
+        <!-- 리뷰 미리보기 -->
+        <div class="review-preview" @click="goToRestaurantReviews">
+          <div class="preview-header">
+            <span class="preview-title">리뷰 {{ restaurant.reviewCount || 0 }}개</span>
+            <el-icon><ArrowRight /></el-icon>
+          </div>
+        </div>
+
         <!-- 버튼 영역 -->
         <div class="button-group">
-          <el-button class="btn-secondary" @click="requestAnotherRecommend">
+          <el-button class="btn-secondary" @click="goBackToRecommend">
             다른 추천
           </el-button>
           <el-button type="primary" class="btn-primary" @click="goToWriteReview">
@@ -69,8 +87,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ArrowRight, Loading } from '@element-plus/icons-vue'
 import { loadKakaoMap } from '@/utils/kakaoMapLoader'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import { ElMessage } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
@@ -78,6 +98,7 @@ const router = useRouter()
 // 상태
 const mapContainer = ref(null)
 const isLoading = ref(true)
+const isMapLoading = ref(true)
 
 // 음식점 데이터
 const restaurant = ref({
@@ -92,7 +113,8 @@ const restaurant = ref({
   distance: 0,
   placeUrl: '',
   recommend: '',
-  rating: 0
+  rating: 0,
+  reviewCount: 0
 })
 
 // 카카오맵 관련
@@ -123,8 +145,11 @@ const shortAddress = computed(() => {
 
 // 카카오맵 초기화
 const initMap = async () => {
+  isMapLoading.value = true
+  
   try {
-    // mapContainer가 준비될 때까지 대기
+    await nextTick()
+    
     if (!mapContainer.value) {
       console.warn('맵 컨테이너가 아직 준비되지 않았습니다.')
       return
@@ -164,93 +189,88 @@ const initMap = async () => {
     })
     infowindow.open(map, marker)
     
+    isMapLoading.value = false
+    
   } catch (error) {
     console.error('카카오맵 초기화 실패:', error)
-    ElMessage.error('지도를 불러오는데 실패했습니다.')
+    isMapLoading.value = false
   }
 }
 
-// 맵 위치 업데이트
-const updateMapPosition = () => {
-  if (!map || !marker) return
-  
-  const kakao = window.kakao
-  const newPosition = new kakao.maps.LatLng(
-    restaurant.value.latitude,
-    restaurant.value.longitude
-  )
-  
-  map.setCenter(newPosition)
-  marker.setPosition(newPosition)
-}
-
-// 음식점 데이터 로드
+// 음식점 데이터 로드 (API 호출 또는 state에서)
 const loadRestaurantData = async () => {
   isLoading.value = true
   
   try {
-    // TODO: 실제 API 호출로 대체
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // history.state에서 추천 결과 확인
+    const stateResult = history.state?.recommendResult
     
-    restaurant.value = {
-      id: 'restaurant_001',
-      name: '맛있는 식당',
-      category: '한식 > 백반/가정식',
-      phone: '02-1234-5678',
-      address: '서울 서초구 서초동 1234-56',
-      roadAddress: '서울 서초구 서초대로 123',
-      latitude: parseFloat(route.query.lat) || 37.5665,
-      longitude: parseFloat(route.query.lng) || 126.9780,
-      distance: 150,
-      placeUrl: 'https://place.map.kakao.com/12345678',
-      recommend: '근처에서 가장 평점이 높은 한식당입니다. 점심 특선 백반이 인기 메뉴이며, 깔끔한 반찬과 정갈한 맛이 특징입니다.',
-      rating: 4.5
+    if (stateResult) {
+      // state에서 결과 사용
+      restaurant.value = {
+        id: stateResult.id || 'restaurant_001',
+        name: stateResult.name || '추천 음식점',
+        category: stateResult.category || '',
+        phone: stateResult.phone || '',
+        address: stateResult.address || '',
+        roadAddress: stateResult.roadAddress || '',
+        latitude: stateResult.latitude || parseFloat(route.query.lat) || 37.5665,
+        longitude: stateResult.longitude || parseFloat(route.query.lng) || 126.9780,
+        distance: stateResult.distance || 0,
+        placeUrl: stateResult.placeUrl || '',
+        recommend: stateResult.recommend || '',
+        rating: stateResult.rating || 0,
+        reviewCount: stateResult.reviewCount || 0
+      }
+    } else {
+      // state가 없으면 더미 데이터 사용
+      restaurant.value = {
+        id: 'restaurant_demo',
+        name: '맛있는 식당 (데모)',
+        category: '한식 > 백반/가정식',
+        phone: '02-1234-5678',
+        address: '서울 서초구 서초동 1234-56',
+        roadAddress: '서울 서초구 서초대로 123',
+        latitude: parseFloat(route.query.lat) || 37.5665,
+        longitude: parseFloat(route.query.lng) || 126.9780,
+        distance: 150,
+        placeUrl: '',
+        recommend: '백엔드 API 연동 후 실제 AI 추천 결과가 표시됩니다. 현재는 데모 데이터입니다.',
+        rating: 4.5,
+        reviewCount: 23
+      }
     }
     
-    // 1. 로딩 해제
     isLoading.value = false
-    
-    // 2. DOM 업데이트 대기 (v-else가 렌더링되도록)
     await nextTick()
-    
-    // 3. DOM이 준비된 후 맵 초기화
     await initMap()
     
   } catch (error) {
     console.error('음식점 데이터 로드 실패:', error)
-    ElMessage.error('음식점 정보를 불러오는데 실패했습니다.')
+    ElMessage.error('추천 정보를 불러오는데 실패했습니다.')
     isLoading.value = false
   }
 }
 
-// 다른 추천 요청
-const requestAnotherRecommend = async () => {
-  try {
-    // TODO: 다른 추천 API 호출
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    restaurant.value = {
-      ...restaurant.value,
-      id: 'restaurant_002',
-      name: '새로운 맛집',
-      category: '일식 > 초밥/롤',
-      phone: '02-9876-5432',
-      recommend: '신선한 회와 초밥이 맛있는 일식당입니다. 런치 세트가 가성비 좋습니다.',
-      rating: 4.8,
-      distance: 230
-    }
-    
-    updateMapPosition()
-    ElMessage.success('새로운 추천을 받았습니다!')
-    
-  } catch (error) {
-    console.error('추천 요청 실패:', error)
-    ElMessage.error('추천 요청에 실패했습니다.')
-  }
+// 다시 Recommend로 돌아가기 (처음부터 다시)
+const goBackToRecommend = () => {
+  router.push('/recommend')
 }
 
 // 리뷰 작성 페이지로 이동
 const goToWriteReview = () => {
+  router.push({
+    name: 'PostReview',
+    query: {
+      restaurantId: restaurant.value.id,
+      restaurantName: restaurant.value.name,
+      category: restaurant.value.category
+    }
+  })
+}
+
+// 음식점 리뷰 목록으로 이동
+const goToRestaurantReviews = () => {
   router.push({
     name: 'Reviews',
     query: {
@@ -273,18 +293,58 @@ onUnmounted(() => {
 /* 로딩 */
 .loading-section {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-icon {
+  animation: rotate 1s linear infinite;
+  color: #667eea;
+  margin-bottom: 16px;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-content h3 {
+  font-size: 18px;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.loading-content p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
 }
 
 /* 맵 영역 */
 .map-section {
   height: 180px;
   flex-shrink: 0;
+  position: relative;
+  background: #f5f5f5;
 }
 
 .map-container {
   width: 100%;
   height: 100%;
+}
+
+.map-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
 }
 
 /* 음식점 카드 */
@@ -310,13 +370,15 @@ onUnmounted(() => {
 .rating-badge {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-width: 48px;
-  height: 32px;
-  padding: 0 12px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  gap: 4px;
+  background: #FFF9E6;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.rating-star {
+  color: #FFB800;
+  font-size: 14px;
 }
 
 .rating-value {
@@ -365,7 +427,7 @@ onUnmounted(() => {
 
 /* AI 추천 영역 */
 .ai-recommend-section {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .recommend-label {
@@ -384,7 +446,33 @@ onUnmounted(() => {
   font-size: 14px;
   line-height: 1.6;
   color: #555;
-  min-height: 60px;
+}
+
+/* 리뷰 미리보기 */
+.review-preview {
+  padding: 14px 16px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.review-preview:hover {
+  background: #f9f9f9;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
 }
 
 /* 버튼 그룹 */
@@ -395,7 +483,7 @@ onUnmounted(() => {
 
 .btn-secondary {
   flex: 1;
-  height: 44px;
+  height: 48px;
   font-size: 14px;
   font-weight: 600;
   border-radius: 8px;
@@ -411,7 +499,7 @@ onUnmounted(() => {
 
 .btn-primary {
   flex: 1;
-  height: 44px;
+  height: 48px;
   font-size: 14px;
   font-weight: 600;
   border-radius: 8px;
