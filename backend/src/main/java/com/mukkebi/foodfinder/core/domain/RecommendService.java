@@ -36,6 +36,11 @@ public class RecommendService {
         User user = userRepository.findByGithubId(githubId)
                 .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR, "사용자를 찾을 수 없습니다."));
 
+        // 0-1. 기존 PENDING 추천들을 REJECTED로 변경 (재추천 로직)
+        List<Recommend> pendingRecommends = recommendRepository.findByUserIdAndResult(
+                user.getId(), com.mukkebi.foodfinder.core.enums.RecommendationResult.PENDING);
+        pendingRecommends.forEach(r -> r.updateResult(com.mukkebi.foodfinder.core.enums.RecommendationResult.REJECTED));
+
         // 1. 해시태그 코드 → 설명(promptMessage) 조회
         List<HashTag> hashTags = hashTagRepository.findAllByCodeIn(request.hashTagCodes());
         if (hashTags.isEmpty()) {

@@ -3,8 +3,10 @@ package com.mukkebi.foodfinder.core.domain;
 import com.mukkebi.foodfinder.core.api.controller.v1.request.ReviewRequest;
 import com.mukkebi.foodfinder.core.api.controller.v1.response.ReviewResponse;
 import com.mukkebi.foodfinder.core.enums.EntityStatus;
+import com.mukkebi.foodfinder.core.enums.RecommendationResult;
 import com.mukkebi.foodfinder.core.support.error.CoreException;
 import com.mukkebi.foodfinder.core.support.error.ErrorType;
+import com.mukkebi.foodfinder.storage.RecommendRepository;
 import com.mukkebi.foodfinder.storage.ReviewRepository;
 import com.mukkebi.foodfinder.storage.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
+    private final RecommendRepository recommendRepository;
 
 
     //리뷰 등록
@@ -45,6 +48,11 @@ public class ReviewService {
                         restaurantId
                 )
         );
+
+        // 리뷰 작성 시 해당 음식점의 PENDING 추천을 ACCEPTED로 변경
+        recommendRepository.findByUserIdAndRestaurantIdAndResult(
+                user.getId(), restaurantId, RecommendationResult.PENDING)
+                .ifPresent(recommend -> recommend.updateResult(RecommendationResult.ACCEPTED));
     }
 
     //리뷰 수정
