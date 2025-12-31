@@ -75,8 +75,11 @@
 
       <!-- 리뷰 행 -->
       <div class="review-row" @click="openReviewModal">
-        <span class="review-label">리뷰 {{ restaurant.reviewCount || 0 }}개</span>
-        <span class="review-arrow">›</span>
+        <span class="review-label">리뷰 보기</span>
+        <div class="review-row-right">
+          <span class="review-count-badge">{{ restaurant.reviewCount || 0 }}개</span>
+          <span class="review-arrow">›</span>
+        </div>
       </div>
 
       <!-- 버튼 영역 -->
@@ -474,15 +477,9 @@ const formatDate = (dateString) => {
   })
 }
 
-// 음식점 리뷰 목록으로 이동
+// 음식점 리뷰 목록으로 이동 (모달로 표시)
 const goToRestaurantReviews = () => {
-  router.push({
-    name: 'Reviews',
-    query: {
-      restaurantId: restaurant.value.id,
-      restaurantName: restaurant.value.name
-    }
-  })
+  openReviewModal()
 }
 
 onMounted(async () => {
@@ -761,7 +758,22 @@ onUnmounted(() => {
 
 .review-label {
   font-size: 15px;
+  font-weight: 500;
   color: #333;
+}
+
+.review-row-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.review-count-badge {
+  font-size: 13px;
+  color: #666;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 4px 10px;
+  border-radius: 12px;
 }
 
 .review-arrow {
