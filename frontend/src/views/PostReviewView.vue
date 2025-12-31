@@ -12,12 +12,12 @@
         <label class="section-label">평점</label>
         <div class="rating-wrapper">
           <el-rate
-              v-model="form.rating"
-              :colors="['#ff9500', '#ff9500', '#ff9500']"
-              :void-color="'#e5e5ea'"
-              size="large"
-              show-score
-              score-template="{value}점"
+            v-model="form.rating"
+            :colors="['#ff9500', '#ff9500', '#ff9500']"
+            :void-color="'#e5e5ea'"
+            size="large"
+            show-score
+            score-template="{value}점"
           />
         </div>
       </div>
@@ -26,13 +26,13 @@
       <div class="content-section">
         <label class="section-label">리뷰 내용</label>
         <el-input
-            v-model="form.content"
-            type="textarea"
-            :rows="6"
-            placeholder="음식점에 대한 솔직한 리뷰를 작성해주세요"
-            maxlength="500"
-            show-word-limit
-            resize="none"
+          v-model="form.content"
+          type="textarea"
+          :rows="6"
+          placeholder="음식점에 대한 솔직한 리뷰를 작성해주세요"
+          maxlength="500"
+          show-word-limit
+          resize="none"
         />
       </div>
 
@@ -41,12 +41,12 @@
         <label class="section-label">해시태그 (선택)</label>
         <div class="hashtag-list">
           <el-tag
-              v-for="tag in quickTags"
-              :key="tag"
-              :type="form.tags.includes(tag) ? 'primary' : 'info'"
-              effect="dark"
-              class="hashtag-tag"
-              @click="toggleTag(tag)"
+            v-for="tag in quickTags"
+            :key="tag"
+            :type="form.tags.includes(tag) ? 'primary' : 'info'"
+            effect="dark"
+            class="hashtag-tag"
+            @click="toggleTag(tag)"
           >
             {{ tag }}
           </el-tag>
@@ -56,12 +56,12 @@
       <!-- 제출 버튼 -->
       <div class="submit-section">
         <el-button
-            type="primary"
-            size="large"
-            class="submit-btn"
-            :loading="isSubmitting"
-            :disabled="!canSubmit"
-            @click="handleSubmit"
+          type="primary"
+          size="large"
+          class="submit-btn"
+          :loading="isSubmitting"
+          :disabled="!canSubmit"
+          @click="handleSubmit"
         >
           리뷰 등록하기
         </el-button>
@@ -147,8 +147,6 @@ const handleSubmit = async () => {
     await reviewApi.createReview(recommendId.value, payload)
 
     ElMessage.success('리뷰가 등록되었습니다')
-
-    // 홈으로 이동
     router.replace('/')
 
   } catch (e) {
@@ -164,7 +162,6 @@ const handleSubmit = async () => {
   } finally {
     isSubmitting.value = false
   }
-
 }
 
 /* 초기 데이터 */

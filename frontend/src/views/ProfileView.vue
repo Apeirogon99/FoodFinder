@@ -182,7 +182,7 @@ import { useUserStore } from '@/stores/user'
 import { userApi } from '@/api/user'
 import { ALLERGIES } from '@/constants/allergies'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {statisticsApi} from "@/api/statistics.js";
+import { statisticsApi } from "@/api/statistics.js"
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -221,7 +221,6 @@ const allergyText = computed(() => {
 
   const labels = allergies.map(item => {
     const code = typeof item === 'object' ? item.allergyType : item
-
     const allergy = ALLERGIES.find(a => a.code === code)
     return allergy ? allergy.label : code
   })
@@ -272,15 +271,15 @@ const saveProfile = async () => {
 
 // 알레르기 설정 모달 열기
 const openAllergySettings = () => {
-  const currentAllergies = userStore.profile?.allergies || [];
+  const currentAllergies = userStore.profile?.allergies || []
 
   if (currentAllergies.length > 0 && typeof currentAllergies[0] === 'object') {
-    allergyForm.value = currentAllergies.map(item => item.allergyType);
+    allergyForm.value = currentAllergies.map(item => item.allergyType)
   } else {
-    allergyForm.value = [...currentAllergies];
+    allergyForm.value = [...currentAllergies]
   }
 
-  showAllergyModal.value = true;
+  showAllergyModal.value = true
 }
 
 // 알레르기 토글
@@ -300,7 +299,7 @@ const saveAllergy = async () => {
   try {
     const allergyPayload = allergyForm.value.map(type => ({
       allergyType: type
-    }));
+    }))
 
     await userApi.updateProfile({
       nickname: userStore.nickname,
