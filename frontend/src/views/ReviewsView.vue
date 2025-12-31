@@ -204,64 +204,43 @@ const truncateContent = (content) => {
 // 리뷰 목록 로드
 const loadReviews = async () => {
   isLoading.value = true
-  
+
   try {
     const response = await reviewApi.getMyReviews()
-    reviews.value = response.content || []
-    hasMore.value = response.hasNext || false
-    cursor.value = response.nextCursor || null
+
+    reviews.value = response.reviews
+    hasMore.value = response.hasNext
+    cursor.value = response.nextCursor
+
   } catch (error) {
     console.error('리뷰 로드 실패:', error)
-    // 개발용 더미 데이터
-    reviews.value = [
-      {
-        id: 1,
-        restaurantId: 'rest_001',
-        restaurantName: '맛있는 한식당',
-        rating: 4.5,
-        content: '정말 맛있었어요! 특히 된장찌개가 일품이었습니다. 반찬도 다양하고 양도 넉넉해서 만족스러웠어요.',
-        createdAt: '2024-12-25T12:00:00'
-      },
-      {
-        id: 2,
-        restaurantId: 'rest_002',
-        restaurantName: '스시 오마카세',
-        rating: 5.0,
-        content: '신선한 회와 초밥이 정말 훌륭했습니다. 가격대비 퀄리티가 최고예요.',
-        createdAt: '2024-12-20T18:30:00'
-      },
-      {
-        id: 3,
-        restaurantId: 'rest_003',
-        restaurantName: '피자 팩토리',
-        rating: 3.5,
-        content: '피자는 괜찮았는데 파스타는 좀 아쉬웠어요.',
-        createdAt: '2024-12-15T19:00:00'
-      }
-    ]
-    hasMore.value = false
   } finally {
     isLoading.value = false
   }
 }
 
+
 // 더 불러오기
 const loadMore = async () => {
   if (!hasMore.value || isLoadingMore.value) return
-  
+
   isLoadingMore.value = true
-  
+
   try {
-    const response = await reviewApi.getMyReviews({ cursor: cursor.value })
-    reviews.value.push(...(response.content || []))
-    hasMore.value = response.hasNext || false
-    cursor.value = response.nextCursor || null
+    const response = await reviewApi.getMyReviews(cursor.value)
+
+    reviews.value.push(...response.reviews)
+    hasMore.value = response.hasNext
+    cursor.value = response.nextCursor
+
+
   } catch (error) {
     console.error('더 불러오기 실패:', error)
   } finally {
     isLoadingMore.value = false
   }
 }
+
 
 // 리뷰 상세 열기
 const openReviewDetail = (review) => {

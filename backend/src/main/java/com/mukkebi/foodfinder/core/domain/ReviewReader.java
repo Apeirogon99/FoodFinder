@@ -81,12 +81,11 @@ public class ReviewReader {
     // 내 리뷰 조회
     @Transactional(readOnly = true)
     public UserReviewListResponse getMyReviews(
-            OAuth2User oauth2User,
+            Long userId,
             Long cursorId
     ) {
-        String githubId = "180543622"; // TODO 인증 연동
 
-        User user = userRepository.findByGithubId(githubId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR));
 
         int limit = 20;

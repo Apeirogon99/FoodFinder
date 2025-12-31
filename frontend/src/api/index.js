@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // 백엔드 API URL (OAuth 세션 쿠키와 동일한 도메인 사용)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5173'
 
 // Axios 인스턴스 생성
 const api = axios.create({

@@ -39,10 +39,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/oauth2/**",
-                                "/api/auth/**",
                                 "/login/**",
                                 "/error"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/auth/login-success",
+                                "/api/v1/reviews/**"
+                        ).authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
