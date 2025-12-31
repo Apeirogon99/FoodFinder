@@ -326,8 +326,9 @@ const requestRecommendation = async () => {
       console.warn('API 호출 실패, 더미 데이터 사용:', apiError)
       // API 실패 시 더미 데이터로 진행 (개발용)
       response = {
-        id: 'restaurant_demo',
-        name: '맛있는 식당 (데모)',
+        recommendId: 'demo_recommend_1',
+        restaurantId: 'restaurant_demo',
+        restaurantName: '맛있는 식당 (데모)',
         category: '한식 > 백반/가정식',
         phone: '02-1234-5678',
         address: '서울 서초구 서초동 1234-56',
@@ -336,15 +337,15 @@ const requestRecommendation = async () => {
         longitude: currentPosition.value.longitude + 0.001,
         distance: 150,
         placeUrl: '',
-        recommend: '선택하신 태그를 기반으로 AI가 추천한 맛집입니다. 실제 백엔드 연동 후 정확한 추천 결과가 표시됩니다.',
+        reason: '선택하신 태그를 기반으로 AI가 추천한 맛집입니다. 실제 백엔드 연동 후 정확한 추천 결과가 표시됩니다.',
         rating: 4.5,
         reviewCount: 23
       }
     }
     
     // 추천된 식당 ID를 제외 목록에 추가
-    if (response.id) {
-      recommendStore.addExcludedRestaurant(response.id)
+    if (response.restaurantId) {
+      recommendStore.addExcludedRestaurant(response.restaurantId)
     }
     
     // Restaurant 페이지로 이동 (결과 데이터와 함께)

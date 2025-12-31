@@ -73,6 +73,12 @@
         </a>
       </div>
 
+      <!-- 리뷰 행 -->
+      <div class="review-row" @click="openReviewModal">
+        <span class="review-label">리뷰 {{ restaurant.reviewCount || 0 }}개</span>
+        <span class="review-arrow">›</span>
+      </div>
+
       <!-- 버튼 영역 -->
       <div class="action-buttons">
         <button 
@@ -90,6 +96,56 @@
         </button>
       </div>
     </div>
+
+    <!-- 리뷰 목록 모달 -->
+    <el-dialog
+      v-model="showReviewModal"
+      :title="''"
+      width="320px"
+      :show-close="false"
+      class="review-dialog"
+    >
+      <template #header>
+        <div class="modal-header">
+          <h3 class="modal-title">{{ restaurant.name }}</h3>
+          <p class="modal-subtitle">리뷰 {{ restaurant.reviewCount || 0 }}개</p>
+        </div>
+      </template>
+      
+      <div class="review-modal-content">
+        <!-- 로딩 -->
+        <div v-if="reviewLoading" class="review-loading">
+          <el-skeleton :rows="3" animated />
+        </div>
+        
+        <!-- 리뷰 없음 -->
+        <div v-else-if="reviews.length === 0" class="no-reviews">
+          <span class="empty-icon">📝</span>
+          <p>아직 리뷰가 없습니다</p>
+        </div>
+        
+        <!-- 리뷰 목록 -->
+        <div v-else class="review-list">
+          <div v-for="review in reviews" :key="review.id" class="review-item">
+            <div class="review-item-header">
+              <div class="review-rating-badge">
+                <span class="star">★</span>
+                <span class="rating-num">{{ review.rating?.toFixed(1) || '0.0' }}</span>
+              </div>
+              <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+            </div>
+            <p class="review-text">{{ review.content }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <template #footer>
+        <div class="modal-footer">
+          <button class="modal-btn-secondary" @click="showReviewModal = false">닫기</button>
+          <button class="modal-btn-primary" @click="goToWriteReview">리뷰 작성</button>
+        </div>
+      </template>
+    </el-dialog>
   </AppLayout>
 </template>
 
@@ -100,6 +156,7 @@ import { Loading } from '@element-plus/icons-vue'
 import { loadKakaoMap } from '@/utils/kakaoMapLoader'
 import { useRecommendStore } from '@/stores/recommend'
 import { recommendApi } from '@/api/recommend'
+import { reviewApi } from '@/api/review'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { ElMessage } from 'element-plus'
 
@@ -113,9 +170,15 @@ const isLoading = ref(true)
 const isReLoading = ref(false)
 const isMapLoading = ref(true)
 
+// 리뷰 모달 상태
+const showReviewModal = ref(false)
+const reviewLoading = ref(false)
+const reviews = ref([])
+
 // 음식점 데이터
 const restaurant = ref({
   id: '',
+  recommendId: '',
   name: '',
   category: '',
   phone: '',
@@ -208,11 +271,13 @@ const loadRestaurantData = async () => {
   
   try {
     const stateResult = history.state?.recommendResult
+    console.log('📥 history.state.recommendResult:', stateResult)
     
     if (stateResult) {
       restaurant.value = {
-        id: stateResult.id || 'restaurant_001',
-        name: stateResult.name || '추천 음식점',
+        id: stateResult.restaurantId || stateResult.id || 'restaurant_001',
+        recommendId: stateResult.recommendId || '',
+        name: stateResult.restaurantName || stateResult.name || '추천 음식점',
         category: stateResult.category || '',
         phone: stateResult.phone || '',
         address: stateResult.address || '',
@@ -221,13 +286,15 @@ const loadRestaurantData = async () => {
         longitude: stateResult.longitude || parseFloat(route.query.lng) || 126.9780,
         distance: stateResult.distance || 0,
         placeUrl: stateResult.placeUrl || '',
-        recommend: stateResult.recommend || '',
+        recommend: stateResult.reason || stateResult.recommend || '',
         rating: stateResult.rating || 0,
         reviewCount: stateResult.reviewCount || 0
       }
+      console.log('📋 매핑된 restaurant 데이터:', restaurant.value)
     } else {
       restaurant.value = {
         id: 'restaurant_demo',
+        recommendId: '',
         name: '맛있는 식당 (데모)',
         category: '한식 > 백반/가정식',
         phone: '02-1234-5678',
@@ -256,15 +323,25 @@ const loadRestaurantData = async () => {
 
 // 재추천 요청
 const requestReRecommendation = async () => {
-  if (!recommendStore.hasContext) {
-    ElMessage.info('추천 조건을 다시 선택해주세요.')
-    router.push('/recommend')
-    return
-  }
-  
   isReLoading.value = true
   
   try {
+    // 컨텍스트가 없으면 현재 식당 정보로 재구성
+    if (!recommendStore.hasContext) {
+      const tags = route.query.tags ? route.query.tags.split(',') : []
+      recommendStore.setContext({
+        latitude: restaurant.value.latitude,
+        longitude: restaurant.value.longitude,
+        radius: parseInt(route.query.radius) || 250,
+        hashTagCodes: tags
+      })
+    }
+    
+    // 현재 식당을 제외 목록에 추가
+    if (restaurant.value.id) {
+      recommendStore.addExcludedRestaurant(restaurant.value.id)
+    }
+    
     const requestData = recommendStore.getRecommendRequest
     console.log('📤 재추천 요청 데이터:', requestData)
     
@@ -282,13 +359,14 @@ const requestReRecommendation = async () => {
       throw apiError
     }
     
-    if (response.id) {
-      recommendStore.addExcludedRestaurant(response.id)
+    if (response.restaurantId) {
+      recommendStore.addExcludedRestaurant(response.restaurantId)
     }
     
     restaurant.value = {
-      id: response.id || 'restaurant_new',
-      name: response.name || '추천 음식점',
+      id: response.restaurantId || response.id || 'restaurant_new',
+      recommendId: response.recommendId || '',
+      name: response.restaurantName || response.name || '추천 음식점',
       category: response.category || '',
       phone: response.phone || '',
       address: response.address || '',
@@ -297,13 +375,15 @@ const requestReRecommendation = async () => {
       longitude: response.longitude || restaurant.value.longitude,
       distance: response.distance || 0,
       placeUrl: response.placeUrl || '',
-      recommend: response.recommend || '',
+      recommend: response.reason || response.recommend || '',
       rating: response.rating || 0,
       reviewCount: response.reviewCount || 0
     }
     
     await nextTick()
     await updateMapMarker()
+    // 재추천 후 리뷰 정보 자동 로드
+    await loadRestaurantReviews()
     
     ElMessage.success('새로운 맛집을 추천해드렸어요!')
     
@@ -338,13 +418,59 @@ const updateMapMarker = async () => {
 
 // 리뷰 작성 페이지로 이동
 const goToWriteReview = () => {
+  console.log('📋 리뷰 작성 이동 - restaurant 데이터:', restaurant.value)
+  
+  if (!restaurant.value.recommendId) {
+    ElMessage.warning('추천 정보가 없습니다. 추천을 다시 받아주세요.')
+    return
+  }
+  
+  showReviewModal.value = false
   router.push({
     name: 'PostReview',
     query: {
-      restaurantId: restaurant.value.id,
+      recommendId: restaurant.value.recommendId,
       restaurantName: restaurant.value.name,
       category: restaurant.value.category
     }
+  })
+}
+
+// 리뷰 모달 열기
+const openReviewModal = async () => {
+  showReviewModal.value = true
+  await loadRestaurantReviews()
+}
+
+// 식당 리뷰 로드
+const loadRestaurantReviews = async () => {
+  if (!restaurant.value.id) return
+  
+  reviewLoading.value = true
+  try {
+    const response = await reviewApi.getRestaurantReviews(restaurant.value.id)
+    reviews.value = response.reviews || []
+    restaurant.value.reviewCount = response.totalCount || reviews.value.length
+    // 평균 별점 반영
+    if (response.averageRating !== undefined) {
+      restaurant.value.rating = response.averageRating
+    }
+  } catch (error) {
+    console.error('리뷰 로드 실패:', error)
+    reviews.value = []
+  } finally {
+    reviewLoading.value = false
+  }
+}
+
+// 날짜 포맷
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
   })
 }
 
@@ -359,8 +485,10 @@ const goToRestaurantReviews = () => {
   })
 }
 
-onMounted(() => {
-  loadRestaurantData()
+onMounted(async () => {
+  await loadRestaurantData()
+  // 페이지 로드 시 리뷰 정보 자동 로드 (별점, 리뷰 개수 업데이트)
+  await loadRestaurantReviews()
 })
 
 onUnmounted(() => {
@@ -613,6 +741,35 @@ onUnmounted(() => {
   font-weight: 500;
 }
 
+/* 리뷰 행 */
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.review-row:hover {
+  background-color: #f9f9f9;
+}
+
+.review-label {
+  font-size: 15px;
+  color: #333;
+}
+
+.review-arrow {
+  font-size: 20px;
+  color: #999;
+  font-weight: 300;
+}
+
 /* 액션 버튼 */
 .action-buttons {
   display: flex;
@@ -678,5 +835,153 @@ onUnmounted(() => {
 
 .btn-text {
   font-size: 15px;
+}
+
+/* 리뷰 모달 */
+:deep(.review-dialog) {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+:deep(.review-dialog .el-dialog__header) {
+  padding: 20px 16px 0;
+  margin: 0;
+}
+
+:deep(.review-dialog .el-dialog__body) {
+  padding: 16px;
+}
+
+:deep(.review-dialog .el-dialog__footer) {
+  padding: 0 16px 20px;
+}
+
+.modal-header {
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}
+
+.review-modal-content {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.review-loading {
+  padding: 20px 0;
+}
+
+.no-reviews {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.no-reviews .empty-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.no-reviews p {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-item {
+  padding: 14px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.review-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.review-rating-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #FFF9E6;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.review-rating-badge .star {
+  color: #FFB800;
+  font-size: 12px;
+}
+
+.review-rating-badge .rating-num {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.review-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.review-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+  margin: 0;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-btn-secondary,
+.modal-btn-primary {
+  flex: 1;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-btn-secondary {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.modal-btn-secondary:hover {
+  background: #eee;
+}
+
+.modal-btn-primary {
+  background: #333;
+  color: white;
+}
+
+.modal-btn-primary:hover {
+  background: #555;
 }
 </style>

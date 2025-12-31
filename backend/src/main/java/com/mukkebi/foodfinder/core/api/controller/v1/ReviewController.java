@@ -22,10 +22,10 @@ public class ReviewController {
     private final ReviewReader reviewReader;
 
     //리뷰 작성
-    @PostMapping("/api/v1/reviews/{restaurantId}")
+    @PostMapping("/api/v1/reviews/{recommendId}")
     public ApiResult<?> postReview(
             @RequestBody ReviewRequest reviewRequest,
-            @PathVariable Long restaurantId,
+            @PathVariable Long recommendId,
             @AuthenticationPrincipal OAuthUserPrincipal oauth2User
     ) {
         if (oauth2User == null) {
@@ -33,7 +33,7 @@ public class ReviewController {
         }
 
         Long userId=oauth2User.getUserId();
-        reviewService.saveReview(reviewRequest, restaurantId, userId);
+        reviewService.saveReviewByRecommend(reviewRequest, recommendId, userId);
         return ApiResult.success();
     }
 

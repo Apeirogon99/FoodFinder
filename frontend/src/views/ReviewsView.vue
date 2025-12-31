@@ -153,9 +153,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { reviewApi } from '@/api/review'
+import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // 상태
 const reviews = ref([])
@@ -203,6 +205,12 @@ const truncateContent = (content) => {
 
 // 리뷰 목록 로드
 const loadReviews = async () => {
+  // 로그인 상태 확인
+  if (!userStore.isAuthenticated) {
+    isLoading.value = false
+    return
+  }
+
   isLoading.value = true
 
   try {
@@ -214,6 +222,9 @@ const loadReviews = async () => {
 
   } catch (error) {
     console.error('리뷰 로드 실패:', error)
+    if (error.response?.status === 401) {
+      ElMessage.warning('로그인이 필요합니다')
+    }
   } finally {
     isLoading.value = false
   }
@@ -343,7 +354,15 @@ const goToRecommend = () => {
   router.push('/recommend')
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 로그인 상태 확인 후 리뷰 로드
+  if (!userStore.isAuthenticated) {
+    try {
+      await userStore.checkLoginStatus()
+    } catch (e) {
+      // 로그인 안됨
+    }
+  }
   loadReviews()
 })
 </script>

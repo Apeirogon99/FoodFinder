@@ -5,12 +5,12 @@ import api from './index'
  */
 export const reviewApi = {
   /**
-   * 리뷰 작성
-   * @param {number} restaurantId - 음식점 ID
+   * 리뷰 작성 (추천 ID 기반)
+   * @param {number} recommendId - 추천 ID
    * @param {Object} data - {content: string, rating: number}
    */
-  async createReview(restaurantId, data) {
-    await api.post(`/v1/reviews/${restaurantId}`, data)
+  async createReview(recommendId, data) {
+    await api.post(`/v1/reviews/${recommendId}`, data)
   },
 
   /**

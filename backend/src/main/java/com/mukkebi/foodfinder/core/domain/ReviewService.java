@@ -1,6 +1,9 @@
 package com.mukkebi.foodfinder.core.domain;
 
 import com.mukkebi.foodfinder.core.api.controller.v1.request.ReviewRequest;
+import com.mukkebi.foodfinder.core.api.controller.v1.response.ReviewResponse;
+import com.mukkebi.foodfinder.core.enums.EntityStatus;
+import com.mukkebi.foodfinder.core.enums.RecommendationResult;
 import com.mukkebi.foodfinder.core.support.error.CoreException;
 import com.mukkebi.foodfinder.core.support.error.ErrorType;
 import com.mukkebi.foodfinder.storage.RecommendRepository;
@@ -22,9 +25,9 @@ public class ReviewService {
     private final RecommendRepository recommendRepository;
 
 
-    //리뷰 등록
+    //리뷰 등록 (recommendId 기반)
     @Transactional
-    public void saveReview(ReviewRequest reviewRequest, Long restaurantId, Long userId) {
+    public void saveReviewByRecommend(ReviewRequest reviewRequest, Long recommendId, Long userId) {
 
         if (reviewRequest.getRating() < 1 || reviewRequest.getRating() > 5) {
             throw new CoreException(ErrorType.DEFAULT_ERROR);
@@ -33,10 +36,13 @@ public class ReviewService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR));
 
-        List<Recommend> recommends =
-                recommendRepository.findByRestaurantId(restaurantId);
+        Recommend recommend = recommendRepository.findById(recommendId)
+                .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR));
 
-        Recommend recommend = recommends.get(0); // 하나만 사용
+        // 해당 추천이 현재 사용자의 것인지 확인
+        if (!recommend.getUserId().equals(userId)) {
+            throw new CoreException(ErrorType.DEFAULT_ERROR);
+        }
 
         reviewRepository.save(
                 Review.create(
@@ -44,10 +50,13 @@ public class ReviewService {
                         reviewRequest.getRating(),
                         userId,
                         user.getNickname(),
-                        restaurantId,
+                        recommend.getRestaurantId(),
                         recommend.getRestaurantName()
                 )
         );
+
+        // 리뷰 작성 시 해당 추천을 ACCEPTED로 변경
+        recommend.updateResult(RecommendationResult.ACCEPTED);
     }
 
 

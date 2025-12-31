@@ -36,6 +36,11 @@ public class RecommendService {
         User user = userRepository.findByGithubId(githubId)
                 .orElseThrow(() -> new CoreException(ErrorType.DEFAULT_ERROR, "사용자를 찾을 수 없습니다."));
 
+        // 0-1. 기존 PENDING 추천들을 REJECTED로 변경 (재추천 로직)
+        List<Recommend> pendingRecommends = recommendRepository.findByUserIdAndResult(
+                user.getId(), com.mukkebi.foodfinder.core.enums.RecommendationResult.PENDING);
+        pendingRecommends.forEach(r -> r.updateResult(com.mukkebi.foodfinder.core.enums.RecommendationResult.REJECTED));
+
         // 1. 해시태그 코드 → 설명(promptMessage) 조회
         List<HashTag> hashTags = hashTagRepository.findAllByCodeIn(request.hashTagCodes());
         if (hashTags.isEmpty()) {
@@ -93,11 +98,11 @@ public class RecommendService {
                 aiResult.reason(),
                 aiResult.menu()
         );
-        recommendRepository.save(recommend);
+        Recommend savedRecommend = recommendRepository.save(recommend);
 
         // 8. RestaurantDetailResponse 반환 (rating은 미구현 상태로 null)
         String recommendText = String.format("추천 메뉴: %s | %s", aiResult.menu(), aiResult.reason());
-        return RestaurantDetailResponse.of(recommendedRestaurant, recommendText, null);
+        return RestaurantDetailResponse.of(savedRecommend.getId(), recommendedRestaurant, recommendText, null);
     }
 
     private String buildPrompt(List<String> hashTagDescriptions, List<Restaurant> restaurants, Set<String> excludeIds) {

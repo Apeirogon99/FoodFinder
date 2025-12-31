@@ -3,6 +3,7 @@ package com.mukkebi.foodfinder.core.api.controller.v1.response;
 import com.mukkebi.foodfinder.core.domain.Restaurant;
 
 public record RestaurantDetailResponse(
+        Long recommendId,
         String id,
         String name,
         String category,
@@ -18,8 +19,9 @@ public record RestaurantDetailResponse(
         Double rating
 ) {
 
-    public static RestaurantDetailResponse of(Restaurant restaurant, String recommend, Double rating) {
+    public static RestaurantDetailResponse of(Long recommendId, Restaurant restaurant, String recommend, Double rating) {
         return new RestaurantDetailResponse(
+                recommendId,
                 restaurant.id(),
                 restaurant.name(),
                 restaurant.category(),

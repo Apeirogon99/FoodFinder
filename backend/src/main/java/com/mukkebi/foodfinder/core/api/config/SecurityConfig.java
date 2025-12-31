@@ -48,6 +48,19 @@ public class SecurityConfig {
                         ).authenticated()
                         .anyRequest().authenticated()
                 )
+                // API 요청에 대해 인증 실패 시 401 반환 (OAuth 리다이렉트 방지)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String requestUri = request.getRequestURI();
+                            if (requestUri.startsWith("/api/")) {
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.setContentType("application/json");
+                                response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"로그인이 필요합니다\"}");
+                            } else {
+                                response.sendRedirect("/oauth2/authorization/github");
+                            }
+                        })
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo ->
                                 userInfo.userService(customOAuth2UserService)

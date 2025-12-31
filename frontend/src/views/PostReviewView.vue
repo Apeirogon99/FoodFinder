@@ -81,7 +81,7 @@ const route = useRoute()
 const router = useRouter()
 
 /* 음식점 정보 */
-const restaurantId = ref('')
+const recommendId = ref('')
 const restaurantName = ref('')
 const restaurantCategory = ref('')
 
@@ -129,6 +129,12 @@ const handleSubmit = async () => {
     return
   }
 
+  if (!recommendId.value) {
+    ElMessage.error('추천 정보가 없습니다. 다시 시도해주세요.')
+    router.replace('/')
+    return
+  }
+
   isSubmitting.value = true
 
   try {
@@ -137,14 +143,13 @@ const handleSubmit = async () => {
       content: form.content
     }
 
-    await reviewApi.createReview(restaurantId.value, payload)
+    console.log('📤 리뷰 등록 요청:', { recommendId: recommendId.value, payload })
+    await reviewApi.createReview(recommendId.value, payload)
 
     ElMessage.success('리뷰가 등록되었습니다')
 
     // 홈으로 이동
     router.replace('/')
-    // 또는
-    // router.push('/reviews/me')
 
   } catch (e) {
     console.error(e)
@@ -164,9 +169,15 @@ const handleSubmit = async () => {
 
 /* 초기 데이터 */
 onMounted(() => {
-  restaurantId.value = route.query.restaurantId || ''
+  recommendId.value = route.query.recommendId || ''
   restaurantName.value = route.query.restaurantName || '음식점'
   restaurantCategory.value = route.query.category || ''
+  
+  console.log('📋 리뷰 작성 페이지 초기화:', {
+    recommendId: recommendId.value,
+    restaurantName: restaurantName.value,
+    category: restaurantCategory.value
+  })
 })
 </script>
 
