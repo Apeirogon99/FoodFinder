@@ -38,7 +38,7 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom {
 
   @Override
   public List<StatisticsResponse> findCategoryStats(LocalDate from, LocalDate to, Long userId) {
-    return em.createQuery("""
+    List<StatisticsResponse> rawStats = em.createQuery("""
         SELECT new com.mukkebi.foodfinder.core.api.controller.v1.response.StatisticsResponse(r.category, COUNT(r))
           FROM Recommend r
          WHERE r.createdAt BETWEEN :from AND :to
@@ -49,6 +49,19 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom {
         .setParameter("to", to.atTime(LocalTime.MAX))
         .setParameter("userId", userId)
         .getResultList();
+
+    java.util.Map<String, Long> aggregated = new java.util.HashMap<>();
+    for (StatisticsResponse stat : rawStats) {
+      if (stat.label() == null)
+        continue;
+      String[] parts = stat.label().split(" > ");
+      String mainCategory = parts.length > 1 ? parts[1] : parts[0];
+      aggregated.merge(mainCategory, stat.value(), Long::sum);
+    }
+
+    return aggregated.entrySet().stream()
+        .map(entry -> new StatisticsResponse(entry.getKey(), entry.getValue()))
+        .collect(java.util.stream.Collectors.toList());
   }
 
   @Override
