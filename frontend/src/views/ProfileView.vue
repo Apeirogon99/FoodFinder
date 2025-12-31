@@ -170,6 +170,7 @@ import { useUserStore } from '@/stores/user'
 import { userApi } from '@/api/user'
 import { ALLERGIES } from '@/constants/allergies'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import {statisticsApi} from "@/api/statistics.js";
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -359,11 +360,9 @@ const confirmWithdraw = async () => {
 // 통계 로드
 const loadStats = async () => {
   try {
-    // TODO: 실제 API 연결
-    stats.value = {
-      reviewCount: 12,
-      visitCount: 28,
-      recommendCount: 45
+    const response = await statisticsApi.getHomeStats()
+    if (response) {
+      stats.value = response.data
     }
   } catch (error) {
     console.error('통계 로드 실패:', error)
