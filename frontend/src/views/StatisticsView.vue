@@ -127,7 +127,7 @@ const recentVisits = ref([])
 const categoryColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#D4A5A5', '#9B59B6']
 const reactionConfig = {
   ACCEPTED: { label: '승인', color: '#4ECDC4' },
-  REJECTED: { label: '거절', color: '#FF6B6B' },
+  REJECTED: { label: '재요청', color: '#FF6B6B' },
   PENDING: { label: '보류', color: '#FFEAA7' }
 }
 
@@ -197,7 +197,7 @@ const getResultClass = (result) => {
 
 const formatResult = (result) => {
   if (result === 'ACCEPTED') return '승인'
-  if (result === 'REJECTED') return '거절'
+  if (result === 'REJECTED') return '재요청'
   return '보류'
 }
 
