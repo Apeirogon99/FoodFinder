@@ -10,7 +10,7 @@ export const userApi = {
    * @returns {Promise<UserProfile>}
    */
   async signUp(data) {
-    const response = await api.post('/users/signup', data)
+    const response = await api.post('/v1/users/signup', data)
     return response.data
   },
 
@@ -19,7 +19,7 @@ export const userApi = {
    * @returns {Promise<{githubId: string, nickname: string, allergies: [{allergyType: string}]}>}
    */
   async getProfile() {
-    const response = await api.get('/users/profile')
+    const response = await api.get('/v1/users/profile')
     return response.data
   },
 
@@ -29,7 +29,7 @@ export const userApi = {
    * @returns {Promise<UserProfile>}
    */
   async updateProfile(data) {
-    const response = await api.patch('/users/profile', data)
+    const response = await api.patch('/v1/users/profile', data)
     return response.data
   },
 
@@ -37,7 +37,7 @@ export const userApi = {
    * 회원 탈퇴
    */
   async withdraw() {
-    await api.delete('/users/me')
+    await api.delete('/v1/users/me')
   },
 }
 

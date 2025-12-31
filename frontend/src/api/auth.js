@@ -20,7 +20,7 @@ export const authApi = {
    * @returns {Promise<{userId: number, status: 'PENDING' | 'ACTIVE'}>}
    */
   async checkLoginSuccess() {
-    const response = await api.get('/auth/login-success')
+    const response = await api.get('/v1/auth/login-success')
     return response.data
   },
 
