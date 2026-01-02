@@ -33,7 +33,7 @@
         <a href="https://github.com/L-dragon-woo">@L-dragon-woo</a>
       </td>
       <td align="center">
-        <img src="./images/임성은.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;" />
+        <img src="./images/김김성은.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;" />
         <br />
         <b>임성은</b>
         <br />
@@ -49,17 +49,6 @@
     </tr>
   </table>
 </div>
-
-## 목차
-1. [프로젝트 개요](#overview)
-3. [개발 환경 및 기술 스택](#tech-stack)
-2. [주요기능](#features)
-3. [플로우차](#flow-chart)
-4. [요구사항 명세서](#requirements)
-5. [테스트케이스 명세서](#test-case)
-7. [개발 환경 및 기술 스택](#tech-stack)
-8. [회고록](#review)
-
 
 # 🍽️ FoodFinder - AI 기반 맞춤형 음식점 추천 서비스
 
@@ -106,7 +95,7 @@
 | 이건우 | Frontend | 통계계 |
 | 이관호 | Frontend | 지도 |
 | 이용우 | Frontend | 리뷰 |
-| 임성은 | Frontend | 회원 |
+| 김성은 | Frontend | 회원 |
 | 임재열 | Frontend | 추천 |
 
 ### 📅 개발 기간
