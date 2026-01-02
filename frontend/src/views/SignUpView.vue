@@ -27,7 +27,7 @@
         </el-form-item>
 
         <!-- 알레르기/식이제한 선택 -->
-        <el-form-item label="알레르기 및 식이제한 (선택)">
+        <el-form-item label="알레르기 정보 (선택)">
           <div class="allergy-section">
             <!-- 알레르기 그룹 -->
             <div
@@ -35,7 +35,6 @@
               :key="groupName"
               class="allergy-group"
             >
-              <h4 class="group-title">{{ groupName }}</h4>
               <div class="allergy-tags">
                 <el-tag
                   v-for="item in items"
