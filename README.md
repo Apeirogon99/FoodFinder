@@ -1,6 +1,6 @@
 <div align="center">
   
-<img src="frontend/src/images/FFlogo.png" alt="FoodFinder Logo" width="300"/>
+<img src="frontend/src/images/FF-logo.png" alt="FoodFinder Logo" width="300"/>
   <h1 style="color:#2F5D7B;">오늘 뭐 먹지?</h1>
   <p style="font-size:1.2em; color:#555;">
     FoodFinder는 AI 기반 음식점 추천 서비스입니다. <br>
