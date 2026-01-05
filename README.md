@@ -216,7 +216,7 @@
 ## 4. 플로우차트
 
 <img width="18700" height="13730" alt="Food Finder" src="https://github.com/user-attachments/assets/8925e9f9-cd16-4430-ab6e-b44d9b7a1e58" />
-
+<img width="18700" height="13730" alt="Food Finder" src="https://docs.google.com/spreadsheets/d/1H_XjW3_AX1xXVDobPoIlAun-5GK0kb_TPHi8p2ykVdI/edit?gid=680046902#gid=680046902" />
 ## 5. 요구사항 명세서
 
 ## 6. 테스트케이스 명세서
