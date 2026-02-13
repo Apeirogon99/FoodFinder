@@ -25,10 +25,12 @@ public class KakaoMapRestaurantFinder implements RestaurantFinder {
     private final RestTemplate kakaoRestTemplate;
     private final KakaoMapProperties kakaoMapProperties;
     private static final ThreadLocal<Integer> apiCallCounter = ThreadLocal.withInitial(() -> 0);
+    private static final ThreadLocal<Integer> lastApiCallCount = ThreadLocal.withInitial(() -> 0);
 
     @Override
     public List<Restaurant> findNearBy(Double latitude, Double longitude, Integer radius) {
         apiCallCounter.set(0);
+        long startTime = System.nanoTime();
 
         try {
             Map<String, Restaurant> restaurants = new HashMap<>();
@@ -47,9 +49,20 @@ public class KakaoMapRestaurantFinder implements RestaurantFinder {
             return filterAndSortByDistance(restaurants.values().stream().toList(), radius);
         } finally {
             int totalApiCalls = apiCallCounter.get();
-            log.info("총 API 호출 횟수: {}회", totalApiCalls);
+            long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
+            double estimatedCost = totalApiCalls * 0.1;
+            log.info("[계측] 위치=({},{}), 반경={}m, API호출={}회, 소요시간={}ms, 예상비용={}원",
+                    latitude, longitude, radius, totalApiCalls, elapsedMs, estimatedCost);
+            lastApiCallCount.set(totalApiCalls);
             apiCallCounter.remove();
         }
+    }
+
+    /**
+     * 마지막 findNearBy() 호출에서 발생한 API 호출 횟수를 반환한다 (벤치마크 테스트용).
+     */
+    public static int getLastApiCallCount() {
+        return lastApiCallCount.get();
     }
 
     /**

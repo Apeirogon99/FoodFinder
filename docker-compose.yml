@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: foodfinder-postgres
+    environment:
+      POSTGRES_DB: foodfinderdb
+      POSTGRES_USER: foodfinder
+      POSTGRES_PASSWORD: foodfinder
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: foodfinder-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:
