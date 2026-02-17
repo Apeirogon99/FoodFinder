@@ -25,10 +25,12 @@ public class KakaoMapRestaurantFinder implements RestaurantFinder {
     private final RestTemplate kakaoRestTemplate;
     private final KakaoMapProperties kakaoMapProperties;
     private static final ThreadLocal<Integer> apiCallCounter = ThreadLocal.withInitial(() -> 0);
+    private static final ThreadLocal<Integer> lastApiCallCount = ThreadLocal.withInitial(() -> 0);
 
     @Override
     public List<Restaurant> findNearBy(Double latitude, Double longitude, Integer radius) {
         apiCallCounter.set(0);
+        long startTime = System.nanoTime();
 
         try {
             Map<String, Restaurant> restaurants = new HashMap<>();
@@ -47,9 +49,39 @@ public class KakaoMapRestaurantFinder implements RestaurantFinder {
             return filterAndSortByDistance(restaurants.values().stream().toList(), radius);
         } finally {
             int totalApiCalls = apiCallCounter.get();
-            log.info("총 API 호출 횟수: {}회", totalApiCalls);
+            long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
+            double estimatedCost = totalApiCalls * 0.1;
+            log.info("[계측] 위치=({},{}), 반경={}m, API호출={}회, 소요시간={}ms, 예상비용={}원",
+                    latitude, longitude, radius, totalApiCalls, elapsedMs, estimatedCost);
+            lastApiCallCount.set(totalApiCalls);
             apiCallCounter.remove();
         }
+    }
+
+    /**
+     * 마지막 findNearBy() 호출에서 발생한 API 호출 횟수를 반환한다 (벤치마크 테스트용).
+     */
+    public static int getLastApiCallCount() {
+        return lastApiCallCount.get();
+    }
+
+    /**
+     * 마지막 API 호출 횟수 카운터를 초기화한다 (벤치마크 테스트용).
+     */
+    public static void resetLastApiCallCount() {
+        lastApiCallCount.set(0);
+    }
+
+    /**
+     * 단일 셀의 사각형 영역 내 음식점을 검색한다.
+     * API 호출 수를 추적하여 벤치마크에서 측정 가능하도록 한다.
+     */
+    public List<Restaurant> searchCellByRectangle(double cellLat, double cellLng, RectangleBounds bounds) {
+        apiCallCounter.set(0);
+        List<Restaurant> result = searchByRectangleRestaurants(cellLat, cellLng, bounds);
+        lastApiCallCount.set(lastApiCallCount.get() + apiCallCounter.get());
+        apiCallCounter.remove();
+        return result;
     }
 
     /**
