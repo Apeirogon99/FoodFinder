@@ -1,236 +1,113 @@
-<div align="center">
-  
-<img src="frontend/src/images/FF-logo.png" alt="FoodFinder Logo" width="300"/>
-  <h1 style="color:#2F5D7B;">오늘 뭐 먹지?</h1>
-  <p style="font-size:1.2em; color:#555;">
-    FoodFinder는 AI 기반 음식점 추천 서비스입니다. <br>
-    사용자의 취향(해시태그)과 위치 정보를 기반으로 주변 음식점을 검색하여 최적의 음식점을 추천합니다 <br>
-  </p>
-</div>
-
-<div align="center">
-  <h2>먹깨비들</h2>
-  <table border="0" style="border: none; width: 80%;">
-    <tr>
-      <td align="center">
-        <img src="frontend/src/images/guntinue.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;" />
-        <br />
-        <b>이건우</b>
-        <br />
-        <a href="https://github.com/guntinue">@guntinue</a>
-      </td>
-      <td align="center">
-        <img src="frontend/src/images/Apeirogon99.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;" />
-        <br />
-        <b>이관호</b>
-        <br />
-        <a href="https://github.com/Apeirogon99">@Apeirogon99</a>
-      </td>
-      <td align="center">
-        <img src="frontend/src/images/L-dragon-woo.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;" />
-        <br />
-        <b>이용우</b>
-        <br />
-        <a href="https://github.com/L-dragon-woo">@L-dragon-woo</a>
-      </td>
-      <td align="center">
-        <img src="frontend/src/images/rlatjddms.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;" />
-        <br />
-        <b>김성은</b>
-        <br />
-        <a href="https://github.com/rlatjddms">@rlatjddms</a>
-      </td>
-        <td align="center">
-        <img src="frontend/src/images/Jae-yeol1.png" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;" />
-        <br />
-        <b>임재열</b>
-        <br />
-        <a href="https://github.com/Jae-yeol1">@Jae-yeol1</a>
-      </td>
-    </tr>
-  </table>
-</div>
-
-# 🍽️ FoodFinder - AI 기반 맞춤형 음식점 추천 서비스
-
-> 당신의 취향을 분석하여 최적의 음식점을 추천해드립니다
-
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Vue.js](https://img.shields.io/badge/Vue.js-3.5-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)
-![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+# 참고
+- 해당 저장소는 저의 주요 역할 및 트러블 슈팅을 정리하기 위한 요약본입니다.
+- 전체적인 정보를 위해 원본을 보고 싶으시다면 [FoodFinder](https://github.com/20250918-beyond-SW-Camp-21th/beyond-SW-21th-third-3team)를 클릭해주세요.
 
 ---
 
 ## 목차
 
 1. [프로젝트 개요](#1-프로젝트-개요)
-2. [개발 환경 및 기술 스택](#2-개발-환경-및-기술-스택)
+2. [기술 스택](#2-기술-스택)
 3. [주요 기능](#3-주요-기능)
-4. [플로우차트](#4-플로우차트)
-5. [요구사항 명세서](#5-요구사항-명세서)
-6. [테스트케이스 명세서](#6-테스트케이스-명세서)
-7. [회고록](#8-회고록)
+4. [트러블 슈팅](#4-트러블-슈팅)
 
 ---
 
 ## 1. 프로젝트 개요
 
-### 📌 프로젝트 소개
+### 소개
 
 **FoodFinder**는 사용자의 취향과 현재 위치를 기반으로 AI가 최적의 음식점을 추천해주는 서비스입니다.
 
 "오늘 뭐 먹지?"라는 일상적인 고민을 해결하기 위해, 사용자가 선택한 해시태그(분위기, 음식 종류, 상황 등)와 위치 정보를 분석하여 카카오맵 API로 주변 음식점을 검색하고, OpenAI GPT-4o를 활용해 개인 맞춤형 음식점을 추천합니다.
 
-### 🎯 프로젝트 목표
+### 목표
 
-- 사용자 취향 기반의 **개인화된 음식점 추천** 제공
-- AI를 활용한 **추천 이유 및 메뉴 제안**으로 선택의 확신 부여
-- 직관적인 UI/UX로 **빠르고 간편한 의사결정** 지원
-- 리뷰 및 통계 기능을 통한 **데이터 기반 인사이트** 제공
+- 외부 API 사용 및 활용, 문서에 대한 이해
 
-### 👥 팀 구성
+### 인원
 
-| 이름 | 역할 | 담당 기능 |
-|------|------|----------|
-| 이건우 | Frontend | 통계 |
-| 이관호 | Frontend | 지도 |
-| 이용우 | Frontend | 리뷰 |
-| 김성은 | Frontend | 회원 |
-| 임재열 | Frontend | 추천 |
+- 인원 5명 (백엔드 5)
 
-### 📅 개발 기간
+### 기간
 
 - **2026.1.02 ~ 2026.01.05** (1주)
 
 ---
 
-## 2. 개발 환경 및 기술 스택
-
-### 🔧 개발 환경
-
-| 구분 | 환경 |
-|------|------|
-| IDE | IntelliJ IDEA, VS Code |
-| OS | Windows, macOS |
-| JDK | Java 17 (OpenJDK) |
-| Node.js | 18.x 이상 |
-| 형상관리 | Git, GitHub |
+## 2. 기술 스택
 
 ### 🛠️ 기술 스택
 
 #### Backend
-
-| 기술 | 버전 | 설명 |
-|------|------|------|
-| Spring Boot | 3.5.0 | 애플리케이션 프레임워크 |
-| Spring Security | 6.x | 인증/인가 처리 |
-| Spring Data JPA | 3.5.0 | ORM, 데이터 접근 계층 |
-| Spring Data Redis | 3.5.0 | 캐싱 처리 |
-| Spring WebFlux | 6.x | 비동기 HTTP 클라이언트 |
-| Spring OAuth2 Client | - | GitHub OAuth2 로그인 |
-| PostgreSQL | - | 관계형 데이터베이스 |
-| Redis | - | 캐시 서버 |
-| Lombok | 1.18.x | 보일러플레이트 코드 제거 |
+![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![Redis](https://img.shields.io/badge/Redis-7-red)
 
 #### Frontend
-
-| 기술 | 버전 | 설명 |
-|------|------|------|
-| Vue.js | 3.5.x | 프론트엔드 프레임워크 |
-| Vite | 6.x | 빌드 도구 |
-| Pinia | 3.x | 상태 관리 |
-| Vue Router | 4.x | 라우팅 |
-| Axios | 1.9.x | HTTP 클라이언트 |
-| Element Plus | 2.9.x | UI 컴포넌트 라이브러리 |
-| Chart.js | 4.x | 차트 시각화 |
+ ![Vue.js](https://img.shields.io/badge/Vue.js-3.5-4FC08D) ![Vite](https://img.shields.io/badge/Vite-6-646CFF) ![Pinia](https://img.shields.io/badge/Pinia-3-yellow) ![ElementPlus](https://img.shields.io/badge/Element%20Plus-2.9-409EFF)
 
 #### 외부 API
-
-| API | 용도 |
-|-----|------|
-| 카카오맵 API | 주변 음식점 검색, 위치 기반 서비스 |
-| OpenAI GPT-4o | AI 음식점 추천, 메뉴 추천 |
-| Git| GitHub OAuth | 소셜 로그인 |
+ ![Kakao Map](https://img.shields.io/badge/Kakao%20Map-API-FFCD00)
 
 ## 3. 주요 기능
 
-### 🔐 회원 관리
-
-**GitHub OAuth2 로그인**
-- GitHub 계정을 통한 간편 로그인
-- 신규 사용자 자동 회원가입 처리
-- JWT 기반 세션 관리
-
-**프로필 관리**
-- 닉네임 변경
-- 알레르기 정보 등록/수정
-- 회원 탈퇴
-
-### 🎯 AI 음식점 추천
-
-**해시태그 기반 취향 선택**
-- 분위기: #조용한, #활기찬, #데이트, #혼밥 등
-- 음식 종류: #한식, #중식, #일식, #양식 등
-- 상황: #점심식사, #저녁회식, #간단히, #푸짐하게 등
-
-**AI 추천 프로세스**
-1. 사용자 위치 + 선호 반경 설정
-2. 해시태그로 취향 선택
-3. 카카오맵 API로 주변 음식점 후보 검색
-4. GPT-4o가 취향 분석 후 최적 음식점 선정
-5. 추천 이유 + 추천 메뉴 함께 제공
-
-**재추천 기능**
-- 마음에 들지 않으면 다른 음식점 재추천 요청
-- 이전 추천 음식점은 자동 제외
-
-### 📝 리뷰 시스템
-
-**리뷰 작성**
-- 별점 (1~5점)
-- 텍스트 리뷰
-- 추천 음식점에 대한 피드백
-
-**리뷰 조회**
-- 음식점별 리뷰 목록
-- 내가 작성한 리뷰 모아보기
-
-### 📊 통계 대시보드
-
-**카테고리별 통계**
-- 가장 많이 추천된 음식 카테고리
-- 카테고리별 만족도 분석
-
-**시간대별 통계**
-- 시간대별 추천 요청 패턴
-- 요일별 이용 현황
-
-### 🗺️ 지도 연동
-
-- 카카오맵 기반 음식점 위치 표시
-- 현재 위치에서 음식점까지 거리 표시
-- 음식점 상세 정보 (주소, 전화번호 등)
-
+1. **주변 음식점 조회**
+    - 카카오맵 API를 이용해 주변(100~500m)음식점 정보를 모두 조회하기
 ---
-## 4. 플로우차트
 
-<img width="18700" height="13730" alt="Food Finder" src="https://github.com/user-attachments/assets/8925e9f9-cd16-4430-ab6e-b44d9b7a1e58" />
+## 4. 트러블 슈팅
 
-## 5. 요구사항 명세서
+1. **카카오맵 API 조회 제한 문제**
+    - 카카오맵 API는 조회에 제한(45건)이 있어 범위에 있는 음식점 전체를 조회하지 못하는 문제 발생했습니다.
+    - 범위로는 300이상의 결과가 있지만 전부 조회하지 못하는 제한사항이 있었습니다.
+    - 또한 조회시 45개는 15 * 3 페이지 형식이기에 API를 추가로 호출해야 조회가 가능했습니다.
+      <img width="1536" height="692" alt="45개 찾는거 까지 가능" src="https://github.com/user-attachments/assets/11abcd6c-e663-442c-9da2-31c756eaa7b0" />
 
-<img width="1579" height="587" alt="image" src="https://github.com/user-attachments/assets/b1368398-1864-4a8d-81f0-2f9a49e5638f" />
+    - 사각형을 4분할 재귀 검색하는 방식을 적용해 조회 제한에서도 모든 음식점 탐색 가능 하게하는 전략을 사용했습니다.
+    - 이는 일종의 쿼드트리와 유사한 형식이며 한 그리드에 조회 제한(45)건보다 많다면 영역을 100m까지 재귀적으로 줄였습니다.
+    - 모든 음식점을 조회할 수 있었지만 API 호출량 증가와 응답속도 증가 문제가 발생하였습니다.
+      <img width="617" height="473" alt="카카오맵 탐색 전략" src="https://github.com/user-attachments/assets/036f3f8a-7c86-4573-ace1-3f4c9816b1cd" />
+  
+      - 모든 음식점 조회 결과
+        <img width="798" height="28" alt="image" src="https://github.com/user-attachments/assets/bb51e1ac-9f9a-43b8-bd23-d341bc4b3cab" />
+        <img width="1354" height="744" alt="image" src="https://github.com/user-attachments/assets/d0c7e888-2a9a-45d1-af34-616cadaa0bd3" />
+      
+2. **Redis 캐싱 중심 아키텍처 선택 이유**
+    - API 호출량 증가는 비용과 관련된 치명적인 문제였기에 해결 방법을 찾아야 했습니다.
+    - 다른 방안 중 하나는 공공데이터 API를 활용하여 Postgres에 저장 및 스케줄링을 통해 하루마다 지속적으로 관리하는 방식이였습니다.
+    - 하지만 직접 음식점을 관리하는 것은 서비스 필요 이상의 복잡성 증가가 우려되어 다른 방안을 찾아야 했습니다.
+    - 현재 문제는 높은 API 호출이기에 비용 최적화를 고려하여 Redis로 캐싱하기로 결정
+      
+3. **증가된 API 호출량 및 응답속도 개선**
+    - 사각형을 고정된 그리드 위치를 100m 간격으로 모두 구하여 위도, 경도를 key로 사용
+    - 만약에 캐시가 HIT한다면 API를 호출하지 않을 것이고 MISS라면 카카오맵API를 이용해 조회하였습니다.
+      <img width="756" height="424" alt="겹쳤을 경우" src="https://github.com/user-attachments/assets/925ceb5a-8e4c-49b7-a250-189b888d5f09" />
 
-## 6. 테스트케이스 명세서
+    
+    - 강남역에서 100명의 인원이 500m 간격으로 조회를 하는 테스트를 진행하였습니다.
+    - 결과적으로는 밀집 상권, 반복 요청이 많은 구간에서는 API 호출량 및 비용 96% 감소·응답속도 98% 개선되어 큰 효과를 얻을 수 있었습니다.
 
-<img width="2672" height="582" alt="image" src="https://github.com/user-attachments/assets/b8a9c44d-0cce-4bf3-a61d-aa230a7c6910" />
+      - 밀집상권 결과
+        
+        | 항목 | 캐시 없음 | 캐싱 | 효과 |
+        |------|--------------|-------------|------|
+        | API 호출 | 11,992회 | 458회 | **11,534회 (96.2%)** |
+        | 소요시간 | 1,786,803ms (~29.8분) | 32,525ms (~32.5초) | **1,754,278ms (98.2%)** |
+        | 예상비용 | 1,199.2원 | 45.8원 | **1,153.4원** |
 
-## 7. 회고록
+      - 같은 자리에서 반복 요청한 경우
+        
+        <img width="464" height="114" alt="image" src="https://github.com/user-attachments/assets/b9d63917-b9a0-405f-90b7-f8c6d0ad0087" />
 
-| 이름 | 회고록 |
-|-----|------|
-| 김성은 | 이번 프론트엔드 프로젝트에서는 유저 파트를 담당하며 세션 기반 깃허브 OAuth 로그인을 구현했습니다. 로그인 성공 후 사용자 상태에 따라 화면을 분기하고, 인증 흐름에 맞게 라우팅을 제어하는 과정에서 프론트엔드에서의 인증 처리 방식을 직접 경험할 수 있었습니다. 특히 백엔드에서 구현한 API를 프론트엔드에서 직접 연동하며 응답 구조와 상태 값을 기준으로 화면 로직을 구성했을 때, 그동안 로직으로만 다뤘던 기능들이 실제 화면에서 동작하는 것이 보여 성취감이 크게 느껴졌습니다. 화면 흐름을 설계하는 과정 또한 인상 깊었고, 프론트엔드 개발의 역할을 보다 명확하게 이해하게 되었습니다. 또한 좋은 팀원들 덕분에 막히는 부분도 부담 없이 해결할 수 있었고, 전반적으로 프로젝트를 즐기며 진행할 수 있었습니다. 이번 경험을 통해 프론트엔드 개발의 매력을 확실히 느낄 수 있었습니다. |
-| 이용우 | 본 프로젝트에서는 Vue를 활용하여 프론트엔드를 구성하고, 기존에 학습해 온 백엔드 API를 실제 서비스 형태로 연동하는 작업을 처음으로 수행하였다. 단순한 화면 구현을 넘어, 프론트엔드와 백엔드 간의 데이터 흐름을 이해하고 이를 기반으로 기능을 완성하는 것이 주요 목표였다. 프로젝트 초반에는 API에서 데이터를 가져오는 방식, URL 및 라우팅 설정, 그리고 View 구조를 어떻게 설계해야 하는지에 대한 명확한 기준이 없어 많은 어려움을 겪었다. 특히 어떤 화면이 필요하며, 각 화면이 어떤 역할을 가져야 하는지 스스로 정의하는 과정이 쉽지 않았다. 이 과정에서 다양한 기술 블로그와 참고 자료를 조사하며 문제를 해결해 나갔고, 이를 통해 Vue와 백엔드 API 간의 연동 구조에 대한 이해를 높일 수 있었다. 또한 세션 기반으로 유저 정보를 관리하고, 이를 프론트엔드에서 활용하는 방법을 직접 구현하며 인증 및 사용자 상태 관리에 대한 경험을 쌓았다. 아울러 유지보수를 고려한 컨트롤러와 서비스 계층 분리, 명확한 네이밍 규칙의 중요성을 체감하게 되었다. 기능 구현뿐만 아니라, 코드의 가독성과 확장성을 고려한 구조 설계가 실제 개발 환경에서 얼마나 중요한지 알 수 있는 계기가 되었다. 특히 프로젝트 전반에 걸쳐 실제 실무와 유사한 방식으로 개발 로드맵을 제시해 주시고 방향성을 잡아 주신 관호님의 도움을 통해, 단순 과제 수행을 넘어 실무 관점에서 프로젝트를 바라볼 수 있게 되었다. 이번 프로젝트를 통해 프론트엔드와 백엔드를 연결하는 전반적인 개발 흐름을 경험할 수 있었으며, 이후 유사한 프로젝트에서는 보다 체계적이고 효율적인 방식으로 개발을 진행할 수 있을 것이라 기대한다. |
-| 임재열 | 프론트엔드 프로젝트를 진행하면서 "백엔드와 어떻게 연결될까?"라는 궁금증이 있었는데, 이번에 그 부분이 명확하게 해결되었다. 그 과정에서 전체적인 웹 개발 구조와 흐름을 이해할 수 있어서 좋았다. 또한 AI 추천 기능을 구현하면서 설정해야 할 것들이 많아 어려움도 컸지만, 하나씩 문제를 해결해 나가며 "왜 이렇게 동작하지?"라고 의문이 들었던 부분들이 점점 정리되고 이해되었다. 문제의 원인을 찾아 해결했을 때 성취감이 컸고, 결과적으로 기분 좋게 마무리할 수 있었다. |
-| 이관호 | 이번 프로젝트에서는 카카오맵 API를 활용한 위치 기반 서비스를 담당하며, 사용자의 현재 위치를 기반으로 주변 음식점을 조회하는 기능을 구현했습니다. 그동안 백엔드 개발을 하면서 API를 제공하는 입장이었는데, 이번에는 외부 API를 소비하는 입장에서 개발하다 보니 응답 구조 파악과 에러 핸들링의 중요성을 다시 한번 체감했습니다. 또한 지도 위에 실시간으로 데이터가 렌더링되는 것을 직접 눈으로 확인했을 때, 백엔드에서 JSON 응답만 확인하던 것과는 다른 종류의 성취감을 느낄 수 있었습니다. 이번 경험을 통해 프론트엔드에서 외부 API를 연동하는 전반적인 흐름을 익혔고, 위치 기반 서비스 구현에 필요한 기술적 기반을 다질 수 있었습니다. |
-| 이건우 | 초반에 통계 테이블을 생성하고 작업을 했지만 추천 태이블과 중복되는 부분이 많아 통계 테이블을 삭제하여 중복 로직과 저장소의 낭비를 방지했고, 추천이 발생한 시점의 데이터를 로그엔티티에 박제하는 스냅샷 패턴을 도입해서 시간이 지나 식당정보가 변경되거나 삭제되더라도 과거의 통계 데이터가 왜곡되지 않는 데이터 무결성을 확보하고 조회성능을 최적화 했으며 유연한 동적 쿼리 설계를 통해 코드 중복을 줄이고 유지보수성을 높였습니다 이번 프로젝트를 진행하면서 통계 기능 구현의 핵심은 "DB에서 데이터를 어떻게 효율적으로 꺼내서, 프론트엔드에 어떻게 깔끔하게 전달할 것인가"였고 데이터를 쌓는 것 만큼이나, 목적에 맞게 데이터를 잘 꺼내보는 설계가 얼마나 중요한지 깨달았다. 특히 스냅샷 패턴과 효율적인 DTO 매핑은 앞으로 다른 프로젝트를 진행할 때도 큰 도움이 될 것 이라고 생각한다. |
+    
+4. **저밀도 지역 문제 (계획)**
+   - 다음 문제는 밀집도가 낮은 곳에서는 캐싱이 비교적 발생하지 않는 문제점이 있었습니다.
+   - 또한 음식점이 100m에 여러개가 있는 것이 아닌 더 높은 범위에서도 45개가 넘지 않는 곳도 다수 있습니다.
+   - 발생빈도가 낮다는 점에서 괜찮을 수 있지만 여기서 좀 더 개선을 고려하였을 때 그리드를 병합하는 좀 더 동적인 형식을 계획하고 있습니다.
+
+     - 저밀도 상권 결과
+       
+        | 항목 | 캐시 없음 | 셀 캐싱 | 절감 |
+        |------|--------------|-------------|------|
+        | API 호출 | 1,548회 | 1,103회 | **445회 (28.7%)** |
+        | 소요시간 | 87,100ms | 63,867ms | **23,233ms (26.7%)** |
+        | 예상비용 | 154.8원 | 110.3원 | **44.5원** |
