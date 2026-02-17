@@ -66,6 +66,25 @@ public class KakaoMapRestaurantFinder implements RestaurantFinder {
     }
 
     /**
+     * 마지막 API 호출 횟수 카운터를 초기화한다 (벤치마크 테스트용).
+     */
+    public static void resetLastApiCallCount() {
+        lastApiCallCount.set(0);
+    }
+
+    /**
+     * 단일 셀의 사각형 영역 내 음식점을 검색한다.
+     * API 호출 수를 추적하여 벤치마크에서 측정 가능하도록 한다.
+     */
+    public List<Restaurant> searchCellByRectangle(double cellLat, double cellLng, RectangleBounds bounds) {
+        apiCallCounter.set(0);
+        List<Restaurant> result = searchByRectangleRestaurants(cellLat, cellLng, bounds);
+        lastApiCallCount.set(lastApiCallCount.get() + apiCallCounter.get());
+        apiCallCounter.remove();
+        return result;
+    }
+
+    /**
      * 1페이지만 주변 탐색 및 범위로 정렬
      *
      * @param latitude  위도
