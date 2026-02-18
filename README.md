@@ -1,60 +1,36 @@
-# 참고
-- 해당 저장소는 저의 주요 역할 및 트러블 슈팅을 정리하기 위한 요약본입니다.
-- 전체적인 정보를 위해 원본을 보고 싶으시다면 [FoodFinder](https://github.com/20250918-beyond-SW-Camp-21th/beyond-SW-21th-third-3team)를 클릭해주세요.
+> [!NOTE]
+> 해당 프로젝트의 주요 역할 및 트러블 슈팅을 정리하기 위한 요약본입니다.
+> 
+> 전체적인 정보를 위해 원본을 보고 싶으시다면 [FoodFinder](https://github.com/20250918-beyond-SW-Camp-21th/beyond-SW-21th-third-3team)를 클릭해주세요.
 
----
-
-## 목차
+# 목차
 
 1. [프로젝트 개요](#1-프로젝트-개요)
-2. [기술 스택](#2-기술-스택)
-3. [주요 기능](#3-주요-기능)
-4. [트러블 슈팅](#4-트러블-슈팅)
+2. [주요 기능](#2-주요-기능)
+3. [트러블 슈팅](#3-트러블-슈팅)
 
----
+# 1. 프로젝트 개요
 
-## 1. 프로젝트 개요
-
-### 소개
+```
+인원: 5명 (백엔드 5)
+기간: 2025.01.02 ~ 2026.01.05 (1주)
+목적: 외부 API 사용 및 활용, 문서에 대한 이해
+역할: 카카오맵 API 기반 주변 음식점 조회 구현
+기술: Java, Spring Boot, Vue, Redis, KakaoMap API
+```
 
 **FoodFinder**는 사용자의 취향과 현재 위치를 기반으로 AI가 최적의 음식점을 추천해주는 서비스입니다.
 
-"오늘 뭐 먹지?"라는 일상적인 고민을 해결하기 위해, 사용자가 선택한 해시태그(분위기, 음식 종류, 상황 등)와 위치 정보를 분석하여 카카오맵 API로 주변 음식점을 검색하고, OpenAI GPT-4o를 활용해 개인 맞춤형 음식점을 추천합니다.
+사용자가 선택한 해시태그(분위기, 음식 종류, 상황 등)와 위치 정보를 분석하여 카카오맵 API로 주변 음식점을 검색합니다.
 
-### 목표
+이후 OpenAI GPT-4o를 활용해 개인 맞춤형 음식점을 추천합니다.
 
-- 외부 API 사용 및 활용, 문서에 대한 이해
-
-### 인원
-
-- 인원 5명 (백엔드 5)
-
-### 기간
-
-- **2026.1.02 ~ 2026.01.05** (1주)
-
----
-
-## 2. 기술 스택
-
-### 🛠️ 기술 스택
-
-#### Backend
-![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![Redis](https://img.shields.io/badge/Redis-7-red)
-
-#### Frontend
- ![Vue.js](https://img.shields.io/badge/Vue.js-3.5-4FC08D) ![Vite](https://img.shields.io/badge/Vite-6-646CFF) ![Pinia](https://img.shields.io/badge/Pinia-3-yellow) ![ElementPlus](https://img.shields.io/badge/Element%20Plus-2.9-409EFF)
-
-#### 외부 API
- ![Kakao Map](https://img.shields.io/badge/Kakao%20Map-API-FFCD00)
-
-## 3. 주요 기능
+# 2. 주요 기능
 
 1. **주변 음식점 조회**
     - 카카오맵 API를 이용해 주변(100~500m)음식점 정보를 모두 조회하기
----
 
-## 4. 트러블 슈팅
+# 3. 트러블 슈팅
 
 1. **카카오맵 API 조회 제한 문제**
     - 카카오맵 API는 조회에 제한(45건)이 있어 범위에 있는 음식점 전체를 조회하지 못하는 문제 발생했습니다.
@@ -72,10 +48,10 @@
         <img width="1354" height="744" alt="image" src="https://github.com/user-attachments/assets/d0c7e888-2a9a-45d1-af34-616cadaa0bd3" />
       
 1. **Redis 캐싱 중심 아키텍처 선택 이유**
-    - API 호출량 증가는 비용과 관련된 치명적인 문제였기에 해결 방법을 찾아야 했습니다.
+    - API 호출량 증가는 비용과 관련되었으며 느린 응답시간 또한 치명적인 문제였기에 해결 방법을 찾아야 했습니다.
     - 다른 방안 중 하나는 공공데이터 API를 활용하여 Postgres에 저장 및 스케줄링을 통해 하루마다 지속적으로 관리하는 방식이였습니다.
     - 하지만 직접 음식점을 관리하는 것은 서비스 필요 이상의 복잡성 증가가 우려되어 다른 방안을 찾아야 했습니다.
-    - 현재 문제는 높은 API 호출이기에 비용 최적화를 고려하여 Redis로 캐싱하기로 결정
+    - 현재 문제는 높은 API 호출과 느린 응답시간이었기에 비용 최적화를 고려하여 Redis로 캐싱하기로 결정
       
 2. **증가된 API 호출량 및 응답속도 개선**
     - 사각형을 고정된 그리드 위치를 100m 간격으로 모두 구하여 위도, 경도를 key로 사용
